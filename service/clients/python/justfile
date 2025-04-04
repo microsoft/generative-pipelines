@@ -1,0 +1,6 @@
+# Default command when no command is provided
+_default:
+    @just --list
+    
+test:
+    poetry run pytest -s

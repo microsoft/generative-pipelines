@@ -1,0 +1,19 @@
+meta {
+  name: DB Delete Collection
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:21365/delete-collection
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "collection": "bruno",
+    // azureaisearch | InMemory | postgres | qdrant
+    "storageType": "InMemory"
+  }
+}

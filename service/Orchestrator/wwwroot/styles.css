@@ -1,0 +1,80 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 900px; /* Set page width */
+    margin: 40px auto;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    margin-bottom: 15px; /* Increased spacing between tools */
+    padding: 10px;
+    background: #fafafa;
+    border-radius: 6px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.tool-name {
+    font-size: 18px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 16px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.functions {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+    padding-left: 15px;
+}
+
+.function-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Two columns: ID (1/3), Description (2/3) */
+    gap: 20px;
+    align-items: start; /* Aligns text at the top */
+}
+
+.function-name {
+    font-weight: bold;
+    color: #333;
+    word-wrap: break-word; /* Allow long IDs to wrap */
+    overflow-wrap: break-word;
+    white-space: normal; /* Ensures wrapping */
+}
+
+.function-desc {
+    color: #666;
+    overflow-wrap: break-word; /* Ensures long descriptions wrap properly */
+}

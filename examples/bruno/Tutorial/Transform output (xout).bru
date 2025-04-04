@@ -1,0 +1,29 @@
+meta {
+  name: Transform output (xout)
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow": {
+      "steps": [
+        {
+          "xin": "{ field1: start.foo, field2: start.bar }",
+          "xout": "[ state.field1, state.field2[0] ]"
+        }
+      ]
+    },
+    "foo": 555,
+    "bar": [
+      1,
+      2
+    ]
+  }
+}

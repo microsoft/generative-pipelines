@@ -1,0 +1,45 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <!-- Packages -->
+  <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Redis" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Search" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="9.1.0" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" Version="9.3.0" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Python.Extensions" Version="9.3.0" />
+  </ItemGroup>
+  <!-- Code Analysis -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.13.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.61">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="4.13.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="Roslynator.Formatting.Analyzers" Version="4.13.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+  </ItemGroup>
+</Project>

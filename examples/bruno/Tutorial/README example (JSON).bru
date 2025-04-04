@@ -1,0 +1,35 @@
+meta {
+  name: README example (JSON)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    // Custom payload
+    "foo": "bar",
+    "customData": {
+      "wikipediaPage": "Moon"
+    },
+    // Workflow definition
+    "_workflow": {
+      "steps": [
+        // First step, fetch some content from Wikipedia
+        {
+          "function": "wikipedia/en",
+          // The endpoint expects a JSON payload with a title string
+          // The title is taken from the initial payload using start.*
+          "xin": "{ title: start.customData.wikipediaPage }",
+          // The function returns a JSON object with a content field, extracted here
+          "xout": "state.content"
+        }
+      ]
+    }
+  }
+}

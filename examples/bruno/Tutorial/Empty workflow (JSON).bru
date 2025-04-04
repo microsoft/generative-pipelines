@@ -1,0 +1,22 @@
+meta {
+  name: Empty workflow (JSON)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "foo": 555,
+    "bar": [
+      1,
+      2
+    ],
+    "_workflow": {},
+  }
+}

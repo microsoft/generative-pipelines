@@ -1,0 +1,36 @@
+.azure
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+dist/
+node_modules/
+tmp/
+_tmp/
+tmp-*/
+out/
+_files/
+_vectors/
+_queues/
+*.patch
+.codeql
+aspire-manifest.json
+*.pyc
+__pycache__/
+
+# Private data
+appsettings.Development.json
+appsettings.Production.json
+*.bicep
+
+# User-specific files
+.vscode/
+_dev/
+*.devis.*
+*.devis
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs

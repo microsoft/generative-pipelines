@@ -1,0 +1,22 @@
+meta {
+  name: Empty workflow (YAML)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-yaml
+}
+
+body:json {
+  foo: 555
+  bar: [1,2]
+  _workflow:
+  
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Text embedding
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow": {
+      "steps": [
+        {
+          "function": "embedding-generator/vectorize",
+          "id": "embedding1",
+          "xin": "{ modelId: 'openai-text-embedding-3-small', input: 'some text ...', dimensions: `3` }",
+        },
+        {
+          "function": "embedding-generator/vectorize",
+          "id": "embedding2",
+          "xin": "{ modelId: 'openai-text-embedding-3-small', inputs: ['some text ...', 'foo bar baz!?'], dimensions: `3` }",
+        },
+        {
+          "xout": "{ example1: embedding1.out.embedding, example2: embedding2.out.embeddings }"
+        }
+      ]
+    }
+  }
+}

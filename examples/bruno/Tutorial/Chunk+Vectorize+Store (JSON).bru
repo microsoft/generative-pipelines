@@ -1,0 +1,123 @@
+meta {
+  name: Chunk+Vectorize+Store (JSON)
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "config": {
+      "page":   "Microsoft",
+      "url":    "https://en.wikipedia.org/wiki/Microsoft",
+      "tags":   ["user=devis","type=wiki","lang=en"],
+      "isTest": true,
+      
+      "chunkSize":     500,
+      "chunkOverlap":  0,
+      "chunkHeader":   "",
+      "tokenizer":     "cl100k_base",
+      "vectorModel":   "openai-text-embedding-3-small",
+      "vectorSize":    100,
+      
+      // azureaisearch | InMemory | postgres | qdrant
+      "vectorStorage": "InMemory",
+      
+      "collection":    "wikipedia",
+      "dataModel":     "MemoryRecord",
+      "fields": [
+        {
+          "name": "Id",
+          "type": "id"
+        },
+        {
+          "name": "Embedding",
+          "type": "vector",
+          "vectorSize": 100,
+          "vectorDistance": "CosineSimilarity"
+        },
+        {
+          "name": "Chunk",
+          "type": "text"
+        },
+        {
+          "name": "Tags",
+          "type": "listOfText"
+        },
+        {
+          "name": "IsTest",
+          "type": "bool"
+        },
+        {
+          "name": "Title",
+          "type": "text"
+        },
+        {
+          "name": "Reference",
+          "type": "text"
+        },
+        {
+          "name": "TimeStamp",
+          "type": "int"
+        },
+        {
+          "name": "Other",
+          "type": "text"
+        },
+      ]
+    },
+    "_workflow": {
+      "steps": [
+        // Delete data collection (just for tests)
+        {
+          "function": "vector-storage-sk/delete-collection",
+          "xin": "{ storageType: start.config.vectorStorage, collection: start.config.collection }",
+        },
+        // Create empty collection
+        {
+          "function": "vector-storage-sk/create-collection",
+          "xin": "{ storageType: start.config.vectorStorage, collection: start.config.collection, fields: start.config.fields }",
+        },
+        // Fetch sample content
+        {
+          "function": "wikipedia/en",
+          "xin": "{ title: start.config.page }",
+        },
+        // Split content in small chunks ready for vectorization
+        {
+          "function": "chunker/chunk",
+          "id": "chunking",
+          "xin": "{ text: state.content, maxTokensPerChunk: start.config.chunkSize, overlap: start.config.chunkOverlap, chunkHeader: start.config.chunkHeader, tokenizer: start.config.tokenizer}",
+        },
+        // Vectorize each chunk
+        {
+          "function": "embedding-generator/vectorize",
+          "id": "vectors",
+          "xin": "{ inputs: chunking.out.chunks, modelId: start.config.vectorModel, dimensions: start.config.vectorSize }",
+        },
+      
+        // Combine chunks and vectors. This could be done together with
+        // the next function call, but we show it separately for demo purpose.
+        // You can comment the next step to see the result of this transformation.
+        {
+          "id": "combine",
+          "xin": "{ values: map(&{Embedding: @[1], Chunk: @[0], Tags: $.start.config.tags, IsTest: $.start.config.isTest, Title: $.start.config.page, Reference: $.start.config.url}, zip(chunking.out.chunks, vectors.out.embeddings)) }"
+          // "xin": "{ zip(chunking.out.chunks, vectors.out.embeddings)) }",
+          // Note: the transformation above could also be done in two steps:
+          // 1. "xin": "map(&{text: @[0], vector: @[1]}, zip(chunking.out.chunks, vectors.out.embeddings))"
+          // 2. "xin": "state[].{ title: $.start.config.page, reference: $.start.config.url, chunk: text, embedding: vector }"
+        },
+        // Store chunks and embeddings in the collection
+        {
+          "function": "vector-storage-sk/upsert",
+          "xin": "{storageType: start.config.vectorStorage, collection: start.config.collection, fields: start.config.fields, values: combine.out.values }"
+        }
+      ]
+    }
+  }
+}

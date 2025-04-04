@@ -1,0 +1,31 @@
+meta {
+  name: DB Create Collection With Check
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:21365/create-collection-with-check
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "collection":  "bruno",
+    
+    // azureaisearch | InMemory | postgres | qdrant
+    "storageType": "InMemory",
+    
+    "fields": [
+      {"name": "id",         "type": "id"     },
+      {"name": "title",      "type": "text"   },
+      {"name": "reference",  "type": "text"   },
+      {"name": "chunk",      "type": "text"   },
+      {"name": "embedding",  "type": "vector", "vectorSize": 5,
+                             "vectorDistance": "CosineSimilarity" },
+      {"name": "isTestData", "type": "bool"      },
+      {"name": "tags",       "type": "listOfText"},
+    ]
+  }
+}

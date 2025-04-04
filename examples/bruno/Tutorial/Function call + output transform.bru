@@ -1,0 +1,25 @@
+meta {
+  name: Function call + output transform
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow": {
+      "steps": [
+        {
+          "function": "wikipedia/en",
+          "xout": "state.content"
+        }
+      ]
+    },
+    "title": "Moon"
+  }
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Transform input (xin)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow": {
+      "steps": [
+        {
+          "xin": "{ field1: state.foo, field2: state.bar }"
+        }
+      ]
+    },
+    "foo": 555,
+    "bar": [
+      1,
+      2
+    ]
+  }
+}

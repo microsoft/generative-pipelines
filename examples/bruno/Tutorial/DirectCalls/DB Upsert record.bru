@@ -1,0 +1,60 @@
+meta {
+  name: DB Upsert record
+  type: http
+  seq: 9
+}
+
+post {
+  url: http://localhost:21365/upsert
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    // azureaisearch | InMemory | postgres | qdrant
+    "storageType": "InMemory",
+    
+    "collection": "bruno",
+    "fields": [
+      {"name": "id",         "type": "id"     },
+      {"name": "title",      "type": "text"   },
+      {"name": "reference",  "type": "text"   },
+      {"name": "chunk",      "type": "text"   },
+      {"name": "embedding",  "type": "vector", "vectorSize": 5,
+                             "vectorDistance": "CosineSimilarity" },
+      {"name": "isTestData", "type": "bool"      },
+      {"name": "tags",       "type": "listOfText"},
+    ],
+    "values": [
+      {
+        "title": "Microsoft",
+        "reference": "https://en.wikipedia.org/wiki/Microsoft",
+        "chunk": "some text",
+        "embedding": [
+          -0.07403279,
+          -0.0886089,
+          0.5392583,
+          0.7826159,
+          0.2887567
+        ],
+        "isTestData": true,
+        "tags": ["type=wiki","user=1"]
+      },
+      {
+        "title": "Microsoft",
+        "reference": "https://en.wikipedia.org/wiki/Microsoft",
+        "chunk": "foo bar",
+        "embedding": [
+          0.20747797,
+          0.15295175,
+          0.3279164,
+          0.8035976,
+          0.42457077
+        ],
+        "isTestData": true,
+        "tags": ["type=wiki","user=1"]
+      }
+    ]
+  }
+}

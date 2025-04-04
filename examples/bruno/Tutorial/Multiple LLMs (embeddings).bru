@@ -1,0 +1,52 @@
+meta {
+  name: Multiple LLMs (embeddings)
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow": {
+      "id": "chunkAndEmbed",
+      "steps": [
+        {
+          "function": "chunker/chunk",
+          "id": "chunking",
+          "xin": "{ text: state.content, maxTokensPerChunk: start.config.chunkSize, overlap: start.config.overlap }",
+        },
+        {
+          "function": "embedding-generator/vectorize",
+          "id": "sentenceembedding",
+          "xin": "{ modelId: start.config.openaiEmbedding, input: start.sentence, dimensions: `3` }",
+        },
+        {
+          "function": "embedding-generator/vectorize-custom",
+          "id": "chunksembedding",
+          "xin": "{ provider: 'azureai', auth: 'AzureIdentity', endpoint: start.config.customEndpoint, modelId: start.config.customModel, inputs: chunking.out.chunks, supportsCustomDimensions: `true`, dimensions: `5` }",
+        },
+        {
+          "xout": "{ tags: start.tags, sentence: sentenceembedding.out.embedding, chunks: chunksembedding.out.embeddings }"
+        }
+      ]
+    },
+    "config": {
+      "chunkSize": 20,
+      "overlap": 0,
+      "customEndpoint": "https://devis-ai-eastus.cognitiveservices.azure.com/",
+      "customModel": "text-embedding-3-small",
+      "openaiEmbedding": "openai-text-embedding-3-small"
+    },
+    "content": "Cerco l'estate tutto l'anno\nE all'improvviso eccola qua\nLei è partita per le spiagge\nE sono solo quassù in città\nSento fischiare sopra i tetti\nUn aeroplano che se ne va",
+    "sentence": "Hello world, let's play a song",
+    "tags": [
+      "type:song",
+      "lang:it-it"
+    ]
+  }
+}

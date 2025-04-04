@@ -1,0 +1,6 @@
+{
+    "directory": ["src/libs/CommonTypeScript/src"],
+    "exportMode": "named",
+    "deep": true,
+    "delete": true
+  }

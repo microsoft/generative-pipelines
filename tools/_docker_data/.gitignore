@@ -1,0 +1,6 @@
+# .gitignore ensures the current dir exists
+
+# Subfolders to ignore:
+redis/
+qdrant/
+postgres/

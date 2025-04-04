@@ -1,0 +1,19 @@
+meta {
+  name: Text embedding
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5083/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "modelId":    "openai-text-embedding-3-small",
+    "inputs":     ["some text ...", "foo bar baz!?"],
+    "dimensions": 3,
+  }
+}

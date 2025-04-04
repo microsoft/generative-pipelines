@@ -1,0 +1,29 @@
+meta {
+  name: Delete collection
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow" : {
+      "steps": [
+        {
+          "xin": "{ storageType: start.config.vectorstorage, collection: start.config.vectorcollection }",
+          "function": "vector-storage-sk/deletecollection"
+        }
+      ]
+    },
+    "config":{
+      // Options: qdrant, azureaisearch, inmemory
+      "vectorstorage": "qdrant",
+      "vectorcollection": "testcoll",
+    }
+  }
+}

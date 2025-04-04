@@ -1,0 +1,23 @@
+meta {
+  name: Simple function call (YAML)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: text
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-yaml
+}
+
+body:text {
+  title: Moon
+  
+  _workflow:
+    steps:
+      - function: wikipedia/en
+}

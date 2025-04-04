@@ -1,0 +1,38 @@
+meta {
+  name: README example (YAML)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: text
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-yaml
+}
+
+body:text {
+  # Custom payload
+  foo: bar
+  customData:
+    wikipediaPage: Moon
+  
+  # Workflow definition
+  _workflow:
+    steps:
+      # First step, fetch some content from Wikipedia
+      - function: wikipedia/en
+        # The endpoint expects a JSON payload with a title string
+        # The title is taken from the initial payload using start.*
+        # YAML allows to use the `>` operator to define multi-line strings, which can be useful when JMESPath
+        # expressions are long and contain JSON syntax. The `>` operator converts the multi-line string into a single line.
+        xin: >
+          {
+            title: start.customData.wikipediaPage
+          }
+        # The function returns a JSON object with a content field, extracted here
+        xout: state.content
+}

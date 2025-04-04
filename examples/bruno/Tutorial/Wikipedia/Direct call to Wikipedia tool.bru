@@ -1,0 +1,17 @@
+meta {
+  name: Direct call to Wikipedia tool
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:5021
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Moon"
+  }
+}

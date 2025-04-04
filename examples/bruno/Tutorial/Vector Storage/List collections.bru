@@ -1,0 +1,28 @@
+meta {
+  name: List collections
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow" : {
+      "steps": [
+        {
+          "xin": "{ storageType: start.config.vectorstorage }",
+          "function": "vector-storage-sk/listcollections",
+        }
+      ]
+    },
+    "config":{
+      // Options: qdrant, azureaisearch, inmemory
+      "vectorstorage": "qdrant"
+    }
+  }
+}

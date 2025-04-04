@@ -1,0 +1,11 @@
+meta {
+  name: GET collections
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{qdranthost}}/collections
+  body: none
+  auth: inherit
+}

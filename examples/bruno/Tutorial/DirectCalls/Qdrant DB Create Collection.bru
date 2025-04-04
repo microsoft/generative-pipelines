@@ -1,0 +1,22 @@
+meta {
+  name: Qdrant DB Create Collection
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:49530/collections/foobar3
+  body: json
+  auth: none
+}
+
+headers {
+  api-key: 
+}
+
+body:json {
+  {
+    "vectors": {
+    }
+  }
+}

@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Microsoft.GenerativePipelines.Client</AssemblyName>
+        <RootNamespace>Microsoft.GenerativePipelines</RootNamespace>
+        <TargetFramework>net9.0</TargetFramework>
+        <RollForward>LatestMajor</RollForward>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <NoWarn>CA1056;</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Http" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
+    </ItemGroup>
+
+    <!-- ################################# -->
+    <!-- ###### NUGET START ############## -->
+    <!-- ################################# -->
+
+    <PropertyGroup>
+        <Version>0.1.0</Version>
+        <IsPackable>true</IsPackable>
+        <PackageId>Microsoft.GenerativePipelines.Client</PackageId>
+        <Product>Generative Pipelines Client</Product>
+        <PackageProjectUrl>https://github.com/microsoft/generative-pipelines</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/microsoft/generative-pipelines</RepositoryUrl>
+        <Description>The generative pipelines client allows to define and start pipelines communicating with an existing Generative Pipeline service.</Description>
+        <PackageTags>Generative Pipelines, Orchestration, AI, Artificial Intelligence, Embeddings, Vector DB, Vector Search, ETL</PackageTags>
+        <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/$(AssemblyName).xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <IsPackable>false</IsPackable>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <!-- Default description and tags. Packages can override. -->
+        <OutputType>Library</OutputType>
+        <Authors>Microsoft</Authors>
+        <Company>Microsoft</Company>
+
+        <!-- Required license, copyright, and repo information. Packages can override. -->
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+        <!-- Use icon linked below -->
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageIconUrl>icon.png</PackageIconUrl>
+
+        <!-- Use readme linked by the project (csproj must include a README) -->
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <!-- Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <!-- Embed C# sources in PDB -->
+        <EmbedAllSources>true</EmbedAllSources>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <!-- SourceLink allows step-through debugging for source hosted on GitHub. -->
+        <!-- https://github.com/dotnet/sourcelink -->
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+
+        <None Include="$(RepoRoot)docs\icon.png" Link="icon.png" Pack="true" PackagePath="." Visible="false" />
+        <None Include="$(RepoRoot)README.md" Link="README.md" Pack="true" PackagePath="." Visible="false" />
+    </ItemGroup>
+
+    <!-- ###### NUGET END ################ -->
+
+</Project>

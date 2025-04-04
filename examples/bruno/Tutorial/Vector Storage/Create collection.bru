@@ -1,0 +1,33 @@
+meta {
+  name: Create collection
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow" : {
+      "steps": [
+        {
+          "xin": "{ storageType: start.config.vectorstorage, collection: start.config.vectorcollection, fields: start.config.fields }",
+          "function": "vector-storage-sk/createcollection",
+        }
+      ]
+    },
+    "config":{
+      // Options: qdrant, azureaisearch, inmemory
+      "vectorstorage": "qdrant",
+      "vectorcollection": "testcoll",
+      "fields": [
+        { "name": "id", "type": "key" },
+        { "name": "vector", "type": "vector", "vectorSize": 5 },
+      ]
+    }
+  }
+}

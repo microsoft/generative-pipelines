@@ -1,0 +1,169 @@
+meta {
+  name: Chunk+Vectorize+Store (YAML)
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: text
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-yaml
+}
+
+body:text {
+  config:
+    sourceId: itwikidolomiti # This is a unique identifier to identify the records in the database, so they can be updated or deleted
+    page: Dolomiti
+    url: https://it.wikipedia.org/wiki/Dolomiti
+    tags: [ 'user=devis','type=wiki','lang=it' ]
+    isTest: True
+    chunkSize: 500
+    chunkOverlap: 0
+    chunkHeader: ""
+    tokenizer: cl100k_base
+    vectorModel: openai-text-embedding-3-small
+    vectorSize: 1536
+  
+    # azureaisearch | postgres | qdrant | InMemory
+    vectorStorage: qdrant
+  
+    collection: foo
+    dataType: MemoryRecord
+    fields:
+      - name: Id
+        type: id
+      - name: Content
+        type: text
+      - name: ContentEmbedding
+        type: vector
+        vectorSize: 1536
+        vectorDistance: CosineSimilarity
+      - name: Tags
+        type: listOfText
+      - name: SourceId
+        type: text
+      - name: IsTest
+        type: bool
+      - name: Title
+        type: text
+      - name: Reference
+        type: text
+      - name: TimeStamp
+        type: int
+      - name: Other
+        type: text
+  
+  _workflow:
+    steps:
+  
+      # Delete data collection (in case the schema changed)
+      - id: delete_collection
+        function: vector-storage-sk/delete-collection
+        xin: >
+          {
+            storageType: start.config.vectorStorage,
+            collection:  start.config.collection
+          }
+  
+      # Create record collection (if not exists)
+      - id: create_collection
+        function: vector-storage-sk/create-collection
+        xin: >
+          {
+            storageType: start.config.vectorStorage,
+            collection:  start.config.collection,
+            fields:      start.config.fields
+          }
+  
+      # Fetch a web page (file upload is supported too)
+      - function: wikipedia/it
+        xin: >
+          {
+            title: start.config.page
+          }
+  
+      # Split content in small chunks ready for vectorization
+      - function: chunker/chunk
+        id: chunking
+        xin: >
+          {
+            text:              state.content,
+            maxTokensPerChunk: start.config.chunkSize,
+            overlap:           start.config.chunkOverlap,
+            chunkHeader:       start.config.chunkHeader,
+            tokenizer:         start.config.tokenizer
+          }
+  
+      # Vectorize each chunk
+      - function: embedding-generator/vectorize
+        id: vectors
+        xin: >
+          {
+            inputs:     chunking.out.chunks,
+            modelId:    start.config.vectorModel,
+            dimensions: start.config.vectorSize
+          }
+  
+      # Create record collection (if not exists)
+      - function: vector-storage-sk/create-collection
+        xin: >
+          {
+            storageType: start.config.vectorStorage,
+            collection:  start.config.collection,
+            fields:      start.config.fields
+          }
+  
+      # Combine chunks and vectors. This could be done together with
+      # the next function call, but we show it separately for demo purpose.
+      # You can comment the next step to see the result of this transformation.
+      - id: combine
+        xin: >
+          {
+            values: map(&{
+              Content:          @[0],
+              ContentEmbedding: @[1],
+              SourceId:         $.start.config.sourceId,
+              Tags:             $.start.config.tags,
+              IsTest:           $.start.config.isTest,
+              Title:            $.start.config.page,
+              Reference:        $.start.config.url
+            }, zip(chunking.out.chunks, vectors.out.embeddings))
+          }
+  
+      # Store records
+      - function: vector-storage-sk/upsert
+        xin: >
+          {
+            storageType: start.config.vectorStorage,
+            collection:  start.config.collection,
+            fields:      start.config.fields,
+            values:      combine.out.values
+          }
+  
+      # Find records
+      - id: find_old_records
+        function: vector-storage-sk/search
+        xin: >
+          {
+            storageType: start.config.vectorStorage,
+            collection:  start.config.collection,
+            dataType:    start.config.dataType,
+            fields:      start.config.fields,
+            filter:      join('',['SourceId eq ','\'',$.start.config.sourceId,'\'']),
+            skip:        `0`,
+            top:         `100`
+          }
+        xout: >
+            state.results[*].value.id
+  
+      # ...
+      # - generate graph
+      # - store graph
+      # - etc
+      # ...
+  
+}

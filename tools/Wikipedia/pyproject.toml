@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "wikipedia-tool"
+version = "0.1.0"
+description = "FastAPI service to fetch Wikipedia page content"
+authors = ["Devis Lucato <dluc@users.noreply.github.com>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.11"
+uvicorn = {extras = ["standard"], version = "^0.34.0"}
+pydantic = "^2.10.6"
+httpx = "^0.27.0"
+redis = "^5.2.1"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

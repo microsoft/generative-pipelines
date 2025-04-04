@@ -1,0 +1,21 @@
+meta {
+  name: Chunk
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:4002/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "maxTokensPerChunk": 100,
+    "overlap":           0,
+    "chunkHeader":       "",
+    "tokenizer":         "cl100k_base",
+    "text":              "In Azure AI Search, a vectorizer is a component that performs vectorization using a deployed embedding model on Azure OpenAI or Azure AI Vision. It converts text (or images) to vectors during query execution. It’s defined in a search index, applies to searchable vector fields, and is used at query time to generate an embedding for a text or image query input. If instead you need to vectorize content as part of the indexing process, refer to integrated vectorization. For built-in vectorization during indexing, you can configure an indexer and skillset that calls an embedding model for your raw text or image content. To add a vectorizer to a search index, you can use the index designer in Azure portal, or call the Create or Update Index REST API, or use any Azure SDK package that’s updated to provide this feature. Vectorizers are now generally available as long as you use a generally available skill-vectorizer pair. AzureOpenAIEmbedding vectorizer and AzureOpenAIEmbedding skill are generally available. The custom Web API vectorizer is also generally available. Azure AI Vision vectorizer, Azure AI Foundry model catalog vectorizer, and their equivalent skills are still in preview. Your skillset must specify 2024-05-01-preview REST API to use preview skills and vectorizers."
+  }
+}

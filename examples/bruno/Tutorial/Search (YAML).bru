@@ -1,0 +1,64 @@
+meta {
+  name: Search (YAML)
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: text
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-yaml
+}
+
+body:text {
+  config:
+    
+    # azureaisearch | InMemory | postgres | qdrant
+    vectorStorage: InMemory
+    
+    collection:    italy
+    # .NET class mapping fields to storage. This is temporarily required to
+    # use Filters when searching records with SK MEVD.
+    dataModel:     "MemoryRecord"
+    fields:
+      - name: Id
+        type: id
+      - name: Embedding
+        type: vector
+        vectorSize: 100
+        vectorDistance: CosineSimilarity
+      - name: Chunk
+        type: text
+      - name: Tags
+        type: listOfText
+      - name: IsTest
+        type: bool
+      - name: Title
+        type: text
+      - name: Reference
+        type: text
+      - name: TimeStamp
+        type: int
+      - name: Other
+        type: text
+  
+  _workflow:
+    steps:
+  
+      # Search
+      - function: vector-storage-sk/search
+        xin: >
+          {
+            storageType: start.config.vectorStorage,
+            collection:  start.config.collection,
+            dataType:    start.config.dataModel,
+            fields:      start.config.fields,
+            skip:        `0`,
+            top:         `3`
+          }
+  
+}

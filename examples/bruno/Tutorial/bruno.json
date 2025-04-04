@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Generative Pipelines Tutorial",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

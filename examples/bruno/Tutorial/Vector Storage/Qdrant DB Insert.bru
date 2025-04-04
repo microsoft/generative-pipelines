@@ -1,0 +1,31 @@
+meta {
+  name: Qdrant DB Insert
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:49530/collections/foobar3/points/payload
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  api-key: 
+}
+
+body:json {
+  { 
+    "points": 
+    [ 
+      { "id": 1, 
+       "payload": { 
+         "field1": "value", 
+         "field2": 123, 
+         "field3": true 
+       } 
+      } 
+    ] 
+  }
+}

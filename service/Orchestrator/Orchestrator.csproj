@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <RollForward>LatestMajor</RollForward>
+        <Nullable>enable</Nullable>
+        <NoWarn>CA1812;CA2201;CA1308;IDE0040;</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.StackExchange.Redis" />
+        <PackageReference Include="JmesPath.Net" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+        <PackageReference Include="Scalar.AspNetCore" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+        <PackageReference Include="System.Memory.Data" />
+        <PackageReference Include="YamlDotNet" />
+    </ItemGroup>
+
+</Project>

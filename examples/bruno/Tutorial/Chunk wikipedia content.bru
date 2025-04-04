@@ -1,0 +1,36 @@
+meta {
+  name: Chunk wikipedia content
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{host}}/api/jobs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "_workflow": {
+      "id": "wikipedia",
+      "steps": [
+        {
+          "function": "wikipedia/en",
+          "xin": "{ title: start.config.page }",
+        },
+        {
+          "function": "chunker/chunk",
+          "xin": "{ text: state.content, maxTokensPerChunk: start.config.chunkSize, overlap: start.config.overlap, chunkHeader: start.config.chunkHeader, tokenizer: start.config.tokenizer}",
+        }
+      ]
+    },
+    "config": {
+      "page": "Microsoft",
+      "chunkSize": 500,
+      "overlap": 0,
+      "chunkHeader": "==============\n",
+      "tokenizer": "cl100k_base"
+    }
+  }
+}
