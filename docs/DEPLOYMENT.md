@@ -30,7 +30,7 @@ Before getting into the deployment notes, please consider the following security
 > for details.
 
 - The orchestrator is meant to be the only public endpoint, restricting the available
-  options ot its endpoints. Tools should be deployed as private endpoints.
+  options to its endpoints. Tools should be deployed as private endpoints.
 - The orchestrator provides no content or function out of the box. The potential of the
   deployment depends on the tools you deploy. **Choose tools carefully**, and make sure
   they are secure and well-maintained.

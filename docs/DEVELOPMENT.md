@@ -29,7 +29,7 @@ Aspire. Logs emitted by Node.js and Python services are available in the Aspire 
 
 ![VS Code logs of .NET resources](img/vscode-logs.png)
 
-![Logs in Aspire dashbord](img/aspire-dashboard-logs.png)
+![Logs in Aspire dashboard](img/aspire-dashboard-logs.png)
 
 **Starting with Command Line**
 
