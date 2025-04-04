@@ -384,12 +384,19 @@ internal static class Program
         string directory,
         string scriptName = "start")
     {
-        return s_builder
+        var resource = s_builder
             .AddPnpmApp(name: name, workingDirectory: Path.Join(s_toolsPath, directory), scriptName: scriptName)
             .WithPnpmPackageInstallation() // use "pnpm"
             .PublishAsDockerFile()
             .WithHttpEndpoint(name: "http", env: "PORT"); // pass random port into PORT env var, used by Node.js project
         //.WithHttpEndpoint(name: "http", env: "PORT", isProxied: false); // pass random port into PORT env var, used by Node.js project
+
+        if (s_builder.ExecutionContext.IsPublishMode)
+        {
+            resource.WithEnvironment("NODE_ENV", "production");
+        }
+
+        return resource;
     }
 
     /// <summary>
