@@ -19,9 +19,12 @@ aspire-manifest.json
 __pycache__/
 
 # Private data
-appsettings.Development.json
 appsettings.Production.json
 *.bicep
+*.crt
+*.key
+*.pem
+*.csr
 
 # User-specific files
 .vscode/
@@ -34,3 +37,7 @@ _dev/
 *.userosscache
 *.sln.docstates
 *.userprefs
+
+# Misc
+.DS_Store
+.idea

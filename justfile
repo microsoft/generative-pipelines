@@ -67,6 +67,10 @@ aspire-deploy: build _aspire-deploy
 aspire-manifest:
     @{{python}} .dev/aspire-manifest.py
 
+# List files foreign to the repository, ignored by git
+git-ignored:
+    git ls-files --others --exclude-standard --ignored
+
 ###################
 #### Internals ####
 ###################
