@@ -3,7 +3,7 @@ contact_links:
   - name: 💬 Ask a question in the forum
     url: https://github.com/microsoft/generative-pipelines/discussions/categories/general
     about: Start a Q&A discussion in the repository
-  - name: ️🎨Feature request
+  - name: ️🎨 Feature request
     url: https://github.com/microsoft/generative-pipelines/discussions/categories/general
     about: Describe your scenario and suggest a feature
   - name: 🎤 Show & Tell
