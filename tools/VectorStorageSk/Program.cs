@@ -153,7 +153,7 @@ internal static class Program
                     SearchRequest req,
                     CancellationToken cancellationToken) =>
                 {
-                    // Note: SK doesn't support search on generic data classes yet, so we use reflection to dyanmically handle
+                    // Note: SK doesn't support search on generic data classes yet, so we use reflection to dynamically handle
                     // multiple model types with a single endpoint. The SearchFunction is not registered with DI, it's handled
                     // dynamically with reflection and uses ActivatorUtilities.CreateInstance to work out the correct types.
 

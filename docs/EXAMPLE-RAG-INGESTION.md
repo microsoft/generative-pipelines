@@ -92,7 +92,7 @@ input:
     chunkSize:     500
     # Optional number of tokens shared by consecutive chunks
     chunkOverlap:  0
-    # Name of the tokenizer used to meausure the size of the text chunks
+    # Name of the tokenizer used to measure the size of the text chunks
     tokenizer:     cl100k_base
     # OpenAI model used to generate embedding vectors
     vectorModel:   openai-text-embedding-3-small
@@ -398,7 +398,7 @@ input:
   chunkSize:     500
   # Optional number of tokens shared by consecutive chunks
   chunkOverlap:  0
-  # Name of the tokenizer used to meausure the size of the text chunks
+  # Name of the tokenizer used to measure the size of the text chunks
   tokenizer:     cl100k_base
   # OpenAI model used to generate embedding vectors
   vectorModel:   openai-text-embedding-3-small

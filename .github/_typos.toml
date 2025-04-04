@@ -1,0 +1,38 @@
+# Typos configuration file
+#
+# Info:    https://github.com/marketplace/actions/typos-action
+# Install: brew install typos-cli
+# Install: conda install typos
+# Run:     typos -c .github/_typos.toml
+
+[files]
+extend-exclude = [
+    "_typos.toml",
+    "package-lock.json",
+    "*.bicep",
+    "*.sql",
+    "vocab.bpe",
+    "encoder.json",
+    "appsettings.development.json",
+    "appsettings.Development.json",
+    "appsettings.*.json.*",
+    "*.sln.DotSettings",
+]
+
+[default.extend-words]
+ACI = "ACI" # Azure Container Instance
+IIF = "IIF" # SQL Function
+Contextful = "Contextful" # Used in swagger.json
+
+[default.extend-identifiers]
+ags = "ags" # Azure Graph Service
+
+[type.jupyter]
+extend-ignore-re = [
+    '"[A-Fa-f0-9]{8}"', # cell id strings
+]
+
+[type.msbuild]
+extend-ignore-re = [
+    'Version=".*"', # ignore package version numbers
+]
