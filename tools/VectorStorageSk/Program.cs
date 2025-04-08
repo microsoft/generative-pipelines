@@ -26,9 +26,9 @@ internal static class Program
         builder.Services.ConfigureSerializationOptions();
         builder.AddRedisToolsRegistry();
         builder.AddInMemoryVectorStore();
-        builder.AddQdrantVectorStore(connectionName: "qdrant-storage");
-        builder.AddPostgresVectorStore(connectionName: "postgres-storage");
-        builder.AddAzureAiSearchVectorStore(connectionName: "aisearch-storage");
+        builder.AddQdrantVectorStore(connectionName: "qdrantstorage");
+        builder.AddPostgresVectorStore(connectionName: "postgresstorage");
+        builder.AddAzureAiSearchVectorStore(connectionName: "aisearchstorage");
         builder.Services.AddScoped<DefinitionsFunction>();
         builder.Services.AddScoped<ListCollectionsFunction>();
         builder.Services.AddScoped<CreateCollectionFunction>();
@@ -75,6 +75,7 @@ internal static class Program
 
         // Orchestrator's tools registry
         var registry = app.Services.GetService<ToolRegistry>();
+        if (registry == null) { app.Logger.LogWarning("Tool registry not available, skipping functions registration"); }
 
         // Endpoints / Functions
         const string DefinitionsFunctionName = "definitions";

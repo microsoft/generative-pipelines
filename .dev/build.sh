@@ -46,5 +46,5 @@ dotnet build
 
 echo "----------------------------------------------------"
 echo "Building .NET Aspire Host..."
-cd "$ROOT/infra/Aspire.AppHost"
+cd "$ROOT/infra/dev-with-aspire"
 dotnet build

@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extractor", "..\tools\Extra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestrator", "..\service\Orchestrator\Orchestrator.csproj", "{2924D4B4-C450-4D66-A26A-E9F0B32E440A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.AppHost", "..\infra\Aspire.AppHost\Aspire.AppHost.csproj", "{EFD3C347-9B06-4000-9DE3-080F9D347576}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dev-with-aspire", "..\infra\dev-with-aspire\Aspire.AppHost.csproj", "{EFD3C347-9B06-4000-9DE3-080F9D347576}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingGenerator", "..\tools\EmbeddingGenerator\EmbeddingGenerator.csproj", "{DD2583A9-125A-4567-9505-E12693247AF2}"
 EndProject

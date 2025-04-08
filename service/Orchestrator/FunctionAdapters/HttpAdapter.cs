@@ -87,15 +87,33 @@ internal sealed class HttpAdapter
         this._log.LogDebug("Job {JobId}: Searching HTTP client for tool '{Tool}', function '{Function}'",
             jobId, functionDetails.Tool, functionDetails.Function);
 
-        HttpClient client = this._httpClientFactory.CreateClient(functionDetails.Tool);
-        if (client.BaseAddress?.AbsoluteUri == null)
+        try
         {
-            this._log.LogError("Job {JobId}: HTTP client for '{Tool}' is missing a base address", jobId, functionDetails.Tool);
+            // Note: service clients are injected using env vars. In some situations, if the env var name contains a dash,
+            // the env var cannot be set, and a different name is used, replacing the dash with an underscore.
+            HttpClient client = this._httpClientFactory.CreateClient(functionDetails.Tool);
+            if (client.BaseAddress?.AbsoluteUri == null && functionDetails.Tool.Contains('-', StringComparison.Ordinal))
+            {
+                var newToolName = functionDetails.Tool.Replace('-', '_');
+                this._log.LogDebug("Job {JobId}: Searching alternative HTTP client for tool name '{Tool}', function '{Function}'",
+                    jobId, newToolName, functionDetails.Function);
+                client = this._httpClientFactory.CreateClient(newToolName);
+            }
+
+            if (client.BaseAddress?.AbsoluteUri == null)
+            {
+                this._log.LogError("Job {JobId}: HTTP client for '{Tool}' is missing a base address", jobId, functionDetails.Tool);
+                return null;
+            }
+
+            this._log.LogDebug("Job {JobId}: HTTP client base address for {Tool}: {BaseAddress}",
+                jobId, functionDetails.Tool, client.BaseAddress.AbsoluteUri);
+            return client;
+        }
+        catch (UriFormatException e)
+        {
+            this._log.LogError(e, "Job {JobId}: HTTP client has an invalid base address: {Error}", jobId, e.Message);
             return null;
         }
-
-        this._log.LogDebug("Job {JobId}: HTTP client base address for {Tool}: {BaseAddress}",
-            jobId, functionDetails.Tool, client.BaseAddress.AbsoluteUri);
-        return client;
     }
 }

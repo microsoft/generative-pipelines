@@ -3,6 +3,5 @@
  */
 
 export { default as log } from "./Diagnostics/logger";
-//export * from "./Diagnostics/otel-setup";
 export * from "./ServiceDiscovery/ToolRegistry";
 export * from "./ServiceDiscovery/ToolRegistryModels";

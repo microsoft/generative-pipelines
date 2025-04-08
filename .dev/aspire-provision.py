@@ -20,7 +20,7 @@ def main():
 
     root = Path(__file__).resolve().parent.parent
     infra_dir = root / "infra"
-    apphost_dir = infra_dir / "Aspire.AppHost"
+    apphost_dir = infra_dir / "dev-with-aspire"
 
     if not apphost_dir.exists():
         print(f"Error: '{apphost_dir}' does not exist.")

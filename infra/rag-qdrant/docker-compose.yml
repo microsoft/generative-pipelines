@@ -1,0 +1,83 @@
+services:
+
+#####################################
+# ORCHESTRATOR
+#####################################
+
+  redis-storage:
+    image: redis:7.4
+    networks: { default: { aliases: [ redisstorage ] } }
+    ports:
+      - "6379:6379"
+
+  orchestrator:
+    image: generativepipelines/orchestrator:dev
+    ports:
+      - "60000:60000"
+    environment:
+      - Logging__LogLevel__Default=Debug
+      - services__chunker__http__0=http://chunker:4002
+      - services__extractor__http__0=http://extractor:4013
+      - services__embedding_generator__http__0=http://embedding-generator:5083
+      - services__vector_storage_sk__http__0=http://vector-storage-sk:21365
+      - services__wikipedia__http__0=http://wikipedia:6001
+
+#####################################
+# STORAGE
+#####################################
+
+  qdrant-storage:
+    image: qdrant/qdrant:v1.12.1
+    networks: { default: { aliases: [ qdrantstorage ] } }
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    environment:
+      - QDRANT__SERVICE__API_KEY=${QDRANT_PASSWORD:-}
+
+#####################################
+# TOOLS
+#####################################
+
+  extractor:
+    image: generativepipelines/extractor:dev
+    ports:
+      - "4013:4013"
+    environment:
+      - TOOL_NAME=extractor
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+
+  chunker:
+    image: generativepipelines/chunker:dev
+    ports:
+      - "4002:4002"
+    environment:
+      - TOOL_NAME=chunker
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+
+  embedding-generator:
+    image: generativepipelines/embedding-generator:dev
+    ports:
+      - "5083:5083"
+    environment:
+      - TOOL_NAME=embedding-generator
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - App__OpenAI__ApiKey=${OPENAI_API_KEY:-}
+
+  vector-storage-sk:
+    image: generativepipelines/vector-storage-sk:dev
+    ports:
+      - "21365:21365"
+    environment:
+      - TOOL_NAME=vector-storage-sk
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - Logging__LogLevel__Default=Debug
+      - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=}
+
+  wikipedia:
+    image: generativepipelines/wikipedia:dev
+    ports:
+      - "6001:6001"
+    environment:
+      - PORT=6001
+      - TOOL_NAME=wikipedia

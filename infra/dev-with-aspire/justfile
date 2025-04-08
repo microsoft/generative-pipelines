@@ -1,0 +1,20 @@
+# Default command when no command is provided
+_default:
+    @just --list
+
+# Build all the projects
+build:
+    @if [ "${OS:-}" = "Windows_NT" ]; then \
+        pwsh -File ../../.dev/build.ps1; \
+    else \
+        bash ../../.dev/build.sh; \
+    fi
+
+# Start all the projects
+start:
+    @if [ "${OS:-}" = "Windows_NT" ]; then \
+        pwsh -File ../../.dev/start.ps1; \
+    else \
+        bash ../../.dev/start.sh; \
+    fi
+

@@ -1,0 +1,43 @@
+# Default command when no command is provided
+_default:
+    @just --list
+
+# List docker containers
+ps:
+    @docker compose ps
+
+# Start all services
+start:
+    @docker compose up -d
+
+# Stop all services
+stop:
+    @docker compose down
+
+# Restart all services
+restart:
+    @docker compose restart
+
+# Show real time stats from the services
+stats:
+    @docker compose stats
+
+# Show combined logs
+log:
+    @docker compose logs --follow
+
+# Show combined logs with timestamps
+logs:
+    @docker compose logs --follow --timestamps
+
+# Show logs from the orchestrator service
+logs-orchestrator:
+    @docker compose logs --follow orchestrator
+
+# Show logs from the Vector Storage service
+logs-vector-storage-sk:
+    @docker compose logs --follow vector-storage-sk
+
+# SSH into orchestrator
+ssh-orchestrator:
+    @docker compose exec orchestrator bash
