@@ -48,9 +48,13 @@ _redis_client: Optional[redis.Redis] = None
 
 def get_redis_client() -> Optional[redis.Redis]:
     """Returns a cached Redis client instance. If not already created, it initializes one."""
+    if os.getenv("GenerativePipelines__ToolsRegistryEnabled", "").lower() != "true":
+        log.info("GenerativePipelines__ToolsRegistryEnabled is set to false, skipping Redis client creation.")
+        return None
+
     global _redis_client
     if _redis_client is None:
-        conn_str = os.getenv("ConnectionStrings__redis-storage", "")
+        conn_str = os.getenv("ConnectionStrings__redisstorage", "")
         if not conn_str:
             log.warning("Redis connection string not found in environment variables.")
             return None

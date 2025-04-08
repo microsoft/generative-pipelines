@@ -48,7 +48,7 @@ ensure_node_version() {
 
 ensure_node_version
 
-cd infra/Aspire.AppHost
+cd infra/dev-with-aspire
 
 dotnet build
 dotnet run --launch-profile https

@@ -9,11 +9,11 @@ if sys.version_info < (3, 11):
     print("❌ Python 3.11+ is required", file=sys.stderr)
     sys.exit(1)
 
-# Run: cd infra/Aspire.AppHost/ && dotnet run --project Aspire.AppHost.csproj -- --publisher manifest --output-path aspire-manifest.json
+# Run: cd infra/dev-with-aspire/ && dotnet run --project Aspire.AppHost.csproj -- --publisher manifest --output-path aspire-manifest.json
 def main():
     root = Path(__file__).resolve().parent.parent
     infra_dir = root / "infra"
-    apphost_dir = infra_dir / "Aspire.AppHost"
+    apphost_dir = infra_dir / "dev-with-aspire"
 
     if not apphost_dir.exists():
         print(f"Error: '{apphost_dir}' does not exist.")

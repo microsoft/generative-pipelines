@@ -14,15 +14,15 @@ namespace Aspire.AppHost;
 internal static class Program
 {
     private const string ToolNameEnvVar = "TOOL_NAME";
-    private const string RedisConnStringName = "redis-storage";
-    private const string QdrantConnStringName = "qdrant-storage";
-    private const string PostgresConnStringName = "postgres-storage";
-    private const string AzureAiSearchConnStringName = "aisearch-storage";
-    private const string AzureBlobsConnStringName = "blobs-storage";
-    private const string AzureQueuesConnStringName = "queues-storage";
+    private const string RedisConnStringName = "redisstorage";
+    private const string QdrantConnStringName = "qdrantstorage";
+    private const string PostgresConnStringName = "postgresstorage";
+    private const string AzureAiSearchConnStringName = "aisearchstorage";
+    private const string AzureBlobsConnStringName = "blobsstorage";
+    private const string AzureQueuesConnStringName = "queuesstorage";
 
     // Let the containers run when the host stops. Used for Qdrant, Redis, etc.
-    private const ContainerLifetime ExternalContainersLifetime = ContainerLifetime.Persistent;
+    // private const ContainerLifetime ExternalContainersLifetime = ContainerLifetime.Persistent;
 
     // Directory containing the tools to be available via the orchestrator.
     private static readonly string s_toolsPath = Path.Join("..", "..", "tools");
@@ -140,16 +140,16 @@ internal static class Program
             if (s_config.UseRedisTools)
             {
                 redis = s_builder.AddRedis(RedisConnStringName)
-                    .WithLifetime(ExternalContainersLifetime)
+                    // .WithLifetime(ExternalContainersLifetime)
                     .WithPersistence(interval: TimeSpan.FromSeconds(45), keysChangedThreshold: 1)
                     .WithDataBindMount(Path.Join(s_localDockerData, "redis"))
                     .WithRedisCommander()
-                    .WithRedisInsight(x => x.WithLifetime(ExternalContainersLifetime));
+                    .WithRedisInsight();
             }
             else
             {
                 redis = s_builder.AddRedis(RedisConnStringName)
-                    .WithLifetime(ExternalContainersLifetime)
+                    // .WithLifetime(ExternalContainersLifetime)
                     .WithPersistence(interval: TimeSpan.FromSeconds(45), keysChangedThreshold: 1)
                     .WithDataBindMount(Path.Join(s_localDockerData, "redis"));
             }
@@ -215,8 +215,7 @@ internal static class Program
         if (s_builder.ExecutionContext.IsPublishMode)
         {
             qdrant = s_builder.AddQdrant(QdrantConnStringName)
-                .WithDataBindMount(Path.Join(s_localDockerData, ResourceName))
-                .WithLifetime(ExternalContainersLifetime);
+                .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
         }
 
         // On localhost
@@ -226,8 +225,8 @@ internal static class Program
             // qdrant = s_builder.AddQdrant(QdrantConnStringName, apiKey: customSecret)
 
             qdrant = s_builder.AddQdrant(QdrantConnStringName)
-                .WithDataBindMount(Path.Join(s_localDockerData, ResourceName))
-                .WithLifetime(ExternalContainersLifetime);
+                // .WithLifetime(ExternalContainersLifetime)
+                .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
         }
 
         return qdrant;
@@ -248,8 +247,8 @@ internal static class Program
 
             postgres = s_builder.AddPostgres(PostgresConnStringName)
                 .WithImage(image: s_config.PostgresContainerImage, tag: s_config.PostgresContainerImageTag)
-                .WithDataBindMount(Path.Join(s_localDockerData, ResourceName))
-                .WithLifetime(ExternalContainersLifetime);
+                // .WithLifetime(ExternalContainersLifetime)
+                .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
         }
 
         // On Azure ...

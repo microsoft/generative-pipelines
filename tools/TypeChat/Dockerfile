@@ -1,4 +1,4 @@
-# 🏗️ 1️⃣ Build Stage (Compiles TypeScript)
+# Build Stage (Compiles TypeScript)
 FROM node:20-slim AS builder
 
 # Set working directory
@@ -17,7 +17,7 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
-# 🏗️ 2️⃣ Runtime Stage (Final lightweight image)
+# Runtime Stage (Final lightweight image)
 FROM node:20-slim
 
 # Set working directory

@@ -15,6 +15,10 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --no-root --no-interaction --no-ansi
 
-COPY ./app .
+# Copy app into /app/app so that "app" is a proper Python package root
+COPY ./app /app/app
 
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-6001}"]
+# Keep working dir as /app
+WORKDIR /app
+
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-6001}"]

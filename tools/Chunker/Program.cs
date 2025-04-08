@@ -27,6 +27,7 @@ internal static class Program
 
         // Orchestrator's tools registry
         var registry = app.Services.GetService<ToolRegistry>();
+        if (registry == null) { app.Logger.LogWarning("Tool registry not available, skipping functions registration"); }
 
         // Endpoints / Functions
         const string ChunkFunctionName = "chunk";

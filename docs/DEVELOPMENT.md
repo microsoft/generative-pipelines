@@ -21,7 +21,7 @@ The system is managed via .NET Aspire, which can be started from the command lin
 **Starting with VS Code**
 
 Open the project folder with VS Code, in the Solution Explorer, right-click
-on infra/Aspire.AppHost and select Debug ->  Start without Debugging. This will start a terminal
+on `infra/Aspire.AppHost` and select Debug ->  Start without Debugging. This will start a terminal
 showing Aspire logs. You can also switch the view to see the logs of .NET services started by
 Aspire. Logs emitted by Node.js and Python services are available in the Aspire dashboard.
 
@@ -35,7 +35,7 @@ Aspire. Logs emitted by Node.js and Python services are available in the Aspire 
 
 To run the system locally, from a terminal, run `just build` and `just start`.
 
-The `start` script launches .NET Aspire host, from the `infra/Aspire.AppHost` directory.
+The `start` script launches .NET Aspire host, from the `infra/dev-with-aspire` directory.
 This will start the Aspire host, which will scan the `tools` directory for available tools, and
 start each tool as a standalone web service (the services must have been built upfront).
 Aspire host will also start a web service for the **Orchestrator**, **Qdrant**, **Postgres**, and **Redis**.
@@ -78,7 +78,7 @@ the IDE and restarting the relevant service in the Aspire dashboard.
 
 To start .NET watch mode, run `dev.sh` or the following commands:
 
-    cd infra/Aspire.AppHost
+    cd infra/dev-with-aspire
     dotnet watch
 
 # Orchestrator settings

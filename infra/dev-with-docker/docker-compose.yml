@@ -1,0 +1,147 @@
+services:
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+    # yacht:
+    #   image: selfhostedpro/yacht:latest
+    #   ports:
+    #     - "8000:8000"
+    #   volumes:
+    #     - /var/run/docker.sock:/var/run/docker.sock
+    #   restart: unless-stopped
+    #   environment:
+    #     - DISABLE_AUTH=True
+
+#####################################
+# ORCHESTRATOR
+#####################################
+
+  redis-storage:
+    image: redis:7.4
+    networks: { default: { aliases: [ redisstorage ] } }
+    ports:
+      - "6379:6379"
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    platform: linux/amd64
+    ports:
+      - "8080:8081"
+    environment:
+      - REDIS_HOSTS=local:redis-storage:6379
+
+  orchestrator:
+    image: generativepipelines/orchestrator:dev
+    ports:
+      - "60000:60000"
+    environment:
+      - Logging__LogLevel__Default=Debug
+      - services__chunker__http__0=http://chunker:4002
+      - services__extractor__http__0=http://extractor:4013
+      - services__embedding_generator__http__0=http://embedding-generator:5083
+      - services__vector_storage_sk__http__0=http://vector-storage-sk:21365
+      - services__type-chat__http__0=http://type-chat:3000
+      - services__wikipedia__http__0=http://wikipedia:6001
+      - ConnectionStrings__redisstorage=redis-storage:6379
+      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+      - ConnectionStrings__queuesstorage=${ConnectionStrings__queuesstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://127.0.0.1:64204/devstoreaccount1;}
+
+#####################################
+# STORAGE
+#####################################
+
+  postgres-storage:
+    image: docker.io/pgvector/pgvector:pg17
+    networks: { default: { aliases: [ postgresstorage ] } }
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
+
+  qdrant-storage:
+    image: qdrant/qdrant:v1.12.1
+    networks: { default: { aliases: [ qdrantstorage ] } }
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    environment:
+      - QDRANT__SERVICE__API_KEY=${QDRANT_PASSWORD:-}
+
+#####################################
+# TOOLS
+#####################################
+
+  extractor:
+    image: generativepipelines/extractor:dev
+    ports:
+      - "4013:4013"
+    environment:
+      - TOOL_NAME=extractor
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ConnectionStrings__redisstorage=redis-storage:6379
+      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+
+  chunker:
+    image: generativepipelines/chunker:dev
+    ports:
+      - "4002:4002"
+    environment:
+      - TOOL_NAME=chunker
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ConnectionStrings__redisstorage=redis-storage:6379
+      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+
+  embedding-generator:
+    image: generativepipelines/embedding-generator:dev
+    ports:
+      - "5083:5083"
+    environment:
+      - TOOL_NAME=embedding-generator
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ConnectionStrings__redisstorage=redis-storage:6379
+      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+      - App__OpenAI__ApiKey=${OPENAI_API_KEY:-}
+
+  vector-storage-sk:
+    image: generativepipelines/vector-storage-sk:dev
+    ports:
+      - "21365:21365"
+    environment:
+      - TOOL_NAME=vector-storage-sk
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - Logging__LogLevel__Default=Debug
+      - ConnectionStrings__redisstorage=redis-storage:6379
+      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+      - ConnectionStrings__postgresstorage=${ConnectionStrings__postgresstorage:-Host=postgresstorage;Port=5432;Username=postgres;Password=}
+      - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=}
+
+  type-chat:
+    image: generativepipelines/typechat:dev
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - TOOL_NAME=type-chat
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ConnectionStrings__redisstorage=redis-storage:6379
+      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+
+  wikipedia:
+    image: generativepipelines/wikipedia:dev
+    ports:
+      - "6001:6001"
+    environment:
+      - PORT=6001
+      - TOOL_NAME=wikipedia
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ConnectionStrings__redisstorage=redis-storage:6379

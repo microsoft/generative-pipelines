@@ -49,6 +49,6 @@ Pop-Location
 # Build Aspire AppHost
 Write-Host "----------------------------------------------------"
 Write-Host "Building .NET Aspire Host..."
-Push-Location infra\Aspire.AppHost
+Push-Location infra\dev-with-aspire
 dotnet build
 Pop-Location

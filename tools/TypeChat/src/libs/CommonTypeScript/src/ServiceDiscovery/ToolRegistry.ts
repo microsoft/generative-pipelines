@@ -12,9 +12,15 @@ let redis: Redis | null = null;
  * If not already created, it parses the env var and creates a new client.
  */
 export function getRedisClient(): Redis | null {
+
+    if (process.env["GenerativePipelines__ToolsRegistryEnabled"]?.toLowerCase() !== "true") {
+        log.info("GenerativePipelines__ToolsRegistryEnabled is set to false, skipping Redis client creation.");
+        return null;
+    }
+
     if (!redis) {
         // Format: "localhost:57033", injected by Aspire
-        const connStr = process.env["ConnectionStrings__redis-storage"] || "";
+        const connStr = process.env["ConnectionStrings__redisstorage"] || "";
         log.info("Redis connection string: ", {connString: connStr});
         if (!connStr) {
             log.warn("Redis connection string not found in environment variables.");

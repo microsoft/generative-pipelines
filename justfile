@@ -71,6 +71,34 @@ aspire-manifest:
 git-ignored:
     git ls-files --others --exclude-standard --ignored
 
+# Create dev image for the tools Orchestrator
+dockerize-orchestrator:
+    @docker buildx build --no-cache --progress tty --file service/Orchestrator/Dockerfile --tag generativepipelines/orchestrator:dev service
+
+# Create dev image for the Chunker tool
+dockerize-chunker:
+    @docker buildx build --no-cache --progress tty --file tools/Chunker/Dockerfile --tag generativepipelines/chunker:dev tools
+
+# Create dev image for the Embedding Generator tool
+dockerize-embedding-generator:
+    @docker buildx build --no-cache --progress tty --file tools/EmbeddingGenerator/Dockerfile --tag generativepipelines/embedding-generator:dev tools
+
+# Create dev image for the Extractor tool
+dockerize-extractor:
+    @docker buildx build --no-cache --progress tty --file tools/Extractor/Dockerfile --tag generativepipelines/extractor:dev tools
+
+# Create dev image for the Vector Storage SK tool
+dockerize-vector-storage-sk:
+    @docker buildx build --no-cache --progress tty --file tools/VectorStorageSk/Dockerfile --tag generativepipelines/vector-storage-sk:dev tools
+
+# Create dev image for the TypeChat tool
+dockerize-typechat:
+    @docker buildx build --no-cache --progress tty --file tools/TypeChat/Dockerfile --tag generativepipelines/typechat:dev tools/TypeChat
+
+# Create dev image for the Wikipedia tool
+dockerize-wikipedia:
+    @docker buildx build --no-cache --progress tty --file tools/Wikipedia/Dockerfile --tag generativepipelines/wikipedia:dev tools/Wikipedia
+
 ###################
 #### Internals ####
 ###################

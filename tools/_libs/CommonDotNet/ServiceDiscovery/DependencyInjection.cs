@@ -10,7 +10,7 @@ namespace CommonDotNet.ServiceDiscovery;
 public static class DependencyInjection
 {
     public static IHostApplicationBuilder AddRedisToolsRegistry(
-        this IHostApplicationBuilder builder, string connectionName = "redis-storage")
+        this IHostApplicationBuilder builder, string connectionName = "redisstorage")
     {
         // Check if the registry integration is enabled
         if (builder.Configuration.GetValue<bool>("GenerativePipelines:ToolsRegistryEnabled"))

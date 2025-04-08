@@ -21,7 +21,7 @@ internal static class Program
         var builder = WebApplication.CreateBuilder(args);
         builder
             .AddLogging()
-            .AddRedisClient(connectionName: "redis-storage");
+            .AddRedisClient(connectionName: "redisstorage");
         builder.Services
             .ConfigureSerializationOptions()
             .AddOpenApi()

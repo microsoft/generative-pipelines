@@ -48,7 +48,7 @@ ensure_node_version() {
 
 ensure_node_version
 
-cd infra/Aspire.AppHost
+cd infra/dev-with-aspire
 
 export DOTNET_USE_POLLING_FILE_WATCHER=1
 dotnet watch

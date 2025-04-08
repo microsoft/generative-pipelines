@@ -1,10 +1,52 @@
 This document describes how to quickly get started with the project to test its functionalities.
 
+You can start using just Docker and Docker Compose, and later repeat the process using .NET Aspire.
+Docker Compose allows to start without the need to install .NET, Python, Node.js, or any other tools.
+
+# Start with Docker Compose
+
+Make sure you installed Docker, including the CLI which includes the command `docker compose`.
+To verify, open a terminal and type:
+
+    docker compose version
+
+which should return something like:
+
+    Docker Compose version v2.32.4-desktop.1
+
+Now enter the `infra/dev-with-docker` directory and run the following command:
+
+    docker compose up -d
+
+which should print something like:
+
+    [+] Running 12/12
+    ✔ Container dev-with-docker-qdrant-storage-1 Started 0.4s
+    ✔ Container dev-with-docker-redis-commander-1 Started 0.3s
+    ✔ Container dev-with-docker-orchestrator-1 Started 0.3s
+    ✔ Container dev-with-docker-vector-storage-sk-1 Started 0.3s
+    ✔ Container dev-with-docker-portainer-1 Started 0.3s
+    ✔ Container dev-with-docker-postgres-storage-1 Started 0.3s
+    ✔ Container dev-with-docker-chunker-1 Started 0.2s
+    ✔ Container dev-with-docker-wikipedia-1 Started 0.3s
+    ✔ Container dev-with-docker-embedding-generator-1 Started 0.4s
+    ✔ Container dev-with-docker-redis-storage-1 Started 0.4s
+    ✔ Container dev-with-docker-extractor-1 Started 0.4s
+    ✔ Container dev-with-docker-type-chat-1 Started
+
+Skip to [Test the Wikipedia tool](#test-the-wikipedia-tool) to continue, or test
+the .NET Aspire approach is you want to see how to run tools from source code.
+
+# Start with .NET Aspire
+
+<details>
+<summary>Click to expand</summary>
+
 For a more involved setup, refer to [DEVELOPMENT.md](DEVELOPMENT.md).
 
 Before starting, check [REQUIREMENTS.md](REQUIREMENTS.md) for tools and software required.
 
-# Run the service locally
+## Run the service locally
 
 Before starting Aspire, make sure to build the system and all the resources. Open a terminal and
 from the root of the project, build and then start the services, using the following commands:
@@ -18,7 +60,7 @@ from the root of the project, build and then start the services, using the follo
 The `build` script builds the Orchestrator and all the projects under the `tools` directory, which
 contains .NET, Node.Js and Python projects.
 
-The `start` script launches .NET Aspire host, from the `infra/Aspire.AppHost` directory.
+The `start` script launches .NET Aspire host, from the `infra/dev-with-aspire` directory.
 This will start the Aspire host, which will scan the `tools` directory for available tools, and
 start each tool as a standalone web service (the services must have been built upfront).
 Aspire host will also start a web service for the **Orchestrator**, and some Docker images including
@@ -61,7 +103,9 @@ resources use ports dynamically assigned each time the Aspire host starts.
 **Unless you're debugging a specific tool, you should only send requests to the Orchestrator
 on port `60000` (or 60001 HTTPS).**
 
-# Test the wikipedia tool
+</details>
+
+# Test the Wikipedia tool
 
 The Wikipedia tool is a simple web service that retrieves the content of a Wikipedia page.
 It's used for testing purposes, such as providing content to process with other tools.
@@ -221,7 +265,6 @@ Invoke-RestMethod -Uri "http://localhost:60000/api/jobs" -Method Post -ContentTy
 
 You should see a JSON array with 3 chunks of text.
 
-
 # Generate embeddings for a file
 
 This is a more realistic scenario, taking in input a file, extracting the content, chunking the text,
@@ -232,7 +275,25 @@ multipart/form-data method. For brevity this example uses the base64-encoding ap
 
 ## LLM configuration
 
-Since the code requires an LLM to generate embeddings, you have a couple of options:
+Since the code requires an LLM to generate embeddings, you need some extra setup.
+
+### Working with Docker images
+
+Under the "infra" folder you can find multiple subfolders, with different stacks.
+The `dev-with-aspire` folder contains is used to run tools from source code, and tools
+are configured differently than when using Docker images. See the next section.
+
+When working with Docker images, e.g. when working with these infras:
+
+- `dev-with-docker`
+- `rag-qdrant`
+
+settings are stored in a `.env` file in each folder. To configure the LLM, edit
+the `.env` file and set the `OPENAI_API_KEY` variable. 
+
+When done run `docker compose up -d` to start the services.
+
+### Working with .NET Aspire
 
 1. Store OpenAI API key in `tools/EmbeddingGenerator/appsettings.Development.json` (key: `App.OpenAI.ApiKey`),
    and use an OpenAI model.
@@ -246,6 +307,8 @@ This being a Quickstart, we will use the last option to skip configuration steps
 if you plan to develop workflows, you should edit `tools/EmbeddingGenerator/appsettings.Development.json`
 and set up your models and credentials. This will allow us to keep workflows simple and free of
 personal settings and credentials.
+
+When done, build the projects and start .NET Aspire AppHost.
 
 ## Upload, extract, chunk, and generate embeddings
 
