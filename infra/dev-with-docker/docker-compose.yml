@@ -37,7 +37,7 @@ services:
       - REDIS_HOSTS=local:redis-storage:6379
 
   orchestrator:
-    image: generativepipelines/orchestrator:dev
+    image: gptools/orchestrator:latest
     ports:
       - "60000:60000"
     environment:
@@ -81,7 +81,7 @@ services:
 #####################################
 
   extractor:
-    image: generativepipelines/extractor:dev
+    image: gptools/extractor:latest
     ports:
       - "4013:4013"
     environment:
@@ -91,7 +91,7 @@ services:
       - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
 
   chunker:
-    image: generativepipelines/chunker:dev
+    image: gptools/chunker:latest
     ports:
       - "4002:4002"
     environment:
@@ -101,7 +101,7 @@ services:
       - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
 
   embedding-generator:
-    image: generativepipelines/embedding-generator:dev
+    image: gptools/embedding-generator:latest
     ports:
       - "5083:5083"
     environment:
@@ -112,7 +112,7 @@ services:
       - App__OpenAI__ApiKey=${OPENAI_API_KEY:-}
 
   vector-storage-sk:
-    image: generativepipelines/vector-storage-sk:dev
+    image: gptools/vector-storage-sk:latest
     ports:
       - "21365:21365"
     environment:
@@ -125,7 +125,7 @@ services:
       - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=}
 
   type-chat:
-    image: generativepipelines/typechat:dev
+    image: gptools/typechat:latest
     ports:
       - "3000:3000"
     environment:
@@ -137,7 +137,7 @@ services:
       - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
 
   wikipedia:
-    image: generativepipelines/wikipedia:dev
+    image: gptools/wikipedia:latest
     ports:
       - "6001:6001"
     environment:

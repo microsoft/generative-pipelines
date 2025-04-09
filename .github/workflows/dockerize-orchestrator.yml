@@ -1,0 +1,101 @@
+# Build Docker images and push them to docker hub
+
+name: Dockerize Orchestrator
+
+on:
+  push:
+    branches: [ "main" ] # Runs on merge
+
+env:
+  IMAGE_NAME: orchestrator                       # ${{ env.IMAGE_NAME }}
+  LATEST_TAG: latest                             # ${{ env.LATEST_TAG }}
+  DOCKERFILE: service/Orchestrator/Dockerfile    # path to Dockerfile
+  DOCKERCTX:  service                            # docker build context
+
+jobs:
+  # ARM64 build job
+  arm64:
+    runs-on: ubuntu-24.04-arm
+    env:
+      DOCKER_TARGET_PLATFORM: linux/arm64
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build ARM Docker image
+        run: |
+          set -euo pipefail
+          SHORT_SHA="${GITHUB_SHA::8}"
+          docker build --push --platform linux/arm64 \
+            --build-arg BUILD_IMAGE_TAG=9.0-noble-arm64v8 \
+            --build-arg RUN_IMAGE_TAG=9.0-alpine-arm64v8 \
+            --tag "${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64" \
+            -f "${{ env.DOCKERFILE }}" ${{ env.DOCKERCTX }}
+
+  # AMD64 build job
+  amd64:
+    runs-on: ubuntu-latest
+    needs: arm64  # Wait for ARM64 job to finish
+    env:
+      DOCKER_TARGET_PLATFORM: linux/amd64
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build AMD Docker image
+        run: |
+          set -euo pipefail
+          SHORT_SHA="${GITHUB_SHA::8}"
+          docker build --push --platform linux/amd64 \
+            --build-arg BUILD_IMAGE_TAG=9.0-noble-amd64 \
+            --build-arg RUN_IMAGE_TAG=9.0-alpine-amd64 \
+            --tag "${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64" \
+            -f "${{ env.DOCKERFILE }}" ${{ env.DOCKERCTX }}
+
+  # Multi-arch manifests
+  multiarch:
+    runs-on: ubuntu-latest
+    needs:
+      - arm64
+      - amd64
+    steps:
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create and publish multi-arch manifests
+        run: |
+          set -euo pipefail
+
+          USER=${{ vars.DOCKERHUB_USERNAME }}
+          NAME=${{ env.IMAGE_NAME }}
+          SHORT_SHA="${GITHUB_SHA::8}"
+
+          # Pull platform-specific images
+          docker pull --platform linux/amd64 "$USER/$NAME:$SHORT_SHA-amd64"
+          docker pull --platform linux/arm64 "$USER/$NAME:$SHORT_SHA-arm64"
+
+          # Create and publish "latest" tag
+          docker manifest create "$USER/$NAME:${{ env.LATEST_TAG }}" "$USER/$NAME:$SHORT_SHA-amd64" "$USER/$NAME:$SHORT_SHA-arm64"
+          docker manifest push "$USER/$NAME:${{ env.LATEST_TAG }}"
+
+          # Create and publish "short SHA" tag
+          docker manifest create "$USER/$NAME:$SHORT_SHA" "$USER/$NAME:$SHORT_SHA-amd64" "$USER/$NAME:$SHORT_SHA-arm64"
+          docker manifest push "$USER/$NAME:$SHORT_SHA"

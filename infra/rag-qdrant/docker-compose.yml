@@ -11,7 +11,7 @@ services:
       - "6379:6379"
 
   orchestrator:
-    image: generativepipelines/orchestrator:dev
+    image: gptools/orchestrator:latest
     ports:
       - "60000:60000"
     environment:
@@ -40,7 +40,7 @@ services:
 #####################################
 
   extractor:
-    image: generativepipelines/extractor:dev
+    image: gptools/extractor:latest
     ports:
       - "4013:4013"
     environment:
@@ -48,7 +48,7 @@ services:
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
 
   chunker:
-    image: generativepipelines/chunker:dev
+    image: gptools/chunker:latest
     ports:
       - "4002:4002"
     environment:
@@ -56,7 +56,7 @@ services:
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
 
   embedding-generator:
-    image: generativepipelines/embedding-generator:dev
+    image: gptools/embedding-generator:latest
     ports:
       - "5083:5083"
     environment:
@@ -65,7 +65,7 @@ services:
       - App__OpenAI__ApiKey=${OPENAI_API_KEY:-}
 
   vector-storage-sk:
-    image: generativepipelines/vector-storage-sk:dev
+    image: gptools/vector-storage-sk:latest
     ports:
       - "21365:21365"
     environment:
@@ -75,7 +75,7 @@ services:
       - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=}
 
   wikipedia:
-    image: generativepipelines/wikipedia:dev
+    image: gptools/wikipedia:latest
     ports:
       - "6001:6001"
     environment:

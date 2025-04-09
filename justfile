@@ -73,31 +73,31 @@ git-ignored:
 
 # Create dev image for the tools Orchestrator
 dockerize-orchestrator:
-    @docker buildx build --no-cache --progress tty --file service/Orchestrator/Dockerfile --tag generativepipelines/orchestrator:dev service
+    @docker buildx build --no-cache --progress tty --file service/Orchestrator/Dockerfile --tag gptools/orchestrator:local service
 
 # Create dev image for the Chunker tool
 dockerize-chunker:
-    @docker buildx build --no-cache --progress tty --file tools/Chunker/Dockerfile --tag generativepipelines/chunker:dev tools
+    @docker buildx build --no-cache --progress tty --file tools/Chunker/Dockerfile --tag gptools/chunker:local tools
 
 # Create dev image for the Embedding Generator tool
 dockerize-embedding-generator:
-    @docker buildx build --no-cache --progress tty --file tools/EmbeddingGenerator/Dockerfile --tag generativepipelines/embedding-generator:dev tools
+    @docker buildx build --no-cache --progress tty --file tools/EmbeddingGenerator/Dockerfile --tag gptools/embedding-generator:local tools
 
 # Create dev image for the Extractor tool
 dockerize-extractor:
-    @docker buildx build --no-cache --progress tty --file tools/Extractor/Dockerfile --tag generativepipelines/extractor:dev tools
+    @docker buildx build --no-cache --progress tty --file tools/Extractor/Dockerfile --tag gptools/extractor:local tools
 
 # Create dev image for the Vector Storage SK tool
 dockerize-vector-storage-sk:
-    @docker buildx build --no-cache --progress tty --file tools/VectorStorageSk/Dockerfile --tag generativepipelines/vector-storage-sk:dev tools
+    @docker buildx build --no-cache --progress tty --file tools/VectorStorageSk/Dockerfile --tag gptools/vector-storage-sk:local tools
 
 # Create dev image for the TypeChat tool
 dockerize-typechat:
-    @docker buildx build --no-cache --progress tty --file tools/TypeChat/Dockerfile --tag generativepipelines/typechat:dev tools/TypeChat
+    @docker buildx build --no-cache --progress tty --file tools/TypeChat/Dockerfile --tag gptools/typechat:local tools/TypeChat
 
 # Create dev image for the Wikipedia tool
 dockerize-wikipedia:
-    @docker buildx build --no-cache --progress tty --file tools/Wikipedia/Dockerfile --tag generativepipelines/wikipedia:dev tools/Wikipedia
+    @docker buildx build --no-cache --progress tty --file tools/Wikipedia/Dockerfile --tag gptools/wikipedia:local tools/Wikipedia
 
 ###################
 #### Internals ####
