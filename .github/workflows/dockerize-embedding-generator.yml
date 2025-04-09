@@ -1,16 +1,16 @@
 # Build Docker images and push them to docker hub
 
-name: Dockerize Orchestrator
+name: Dockerize Embedding Generator
 
 on:
   push:
     branches: [ "main" ] # Runs on merge
 
 env:
-  IMAGE_NAME: orchestrator                       # ${{ env.IMAGE_NAME }}
-  LATEST_TAG: latest                             # ${{ env.LATEST_TAG }}
-  DOCKERFILE: service/Orchestrator/Dockerfile    # path to Dockerfile
-  DOCKERCTX:  service                            # docker build context
+  IMAGE_NAME: embedding-generator                   # ${{ env.IMAGE_NAME }}
+  LATEST_TAG: latest                                # ${{ env.LATEST_TAG }}
+  DOCKERFILE: tools/EmbeddingGenerator/Dockerfile   # path to Dockerfile
+  DOCKERCTX:  tools                                 # docker build context
 
 jobs:
   # ARM64 build job
