@@ -113,9 +113,7 @@ It's used for testing purposes, such as providing content to process with other 
 To proceed we need the port used by the Wikipedia service. When running docker images,
 you can find the ports in use running the following command:
 
-```bash
-docker ps
-```
+    docker ps
 
 If you're using .NET Aspire, you can find the port in the dashboard.
 
