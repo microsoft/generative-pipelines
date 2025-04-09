@@ -110,8 +110,14 @@ on port `60000` (or 60001 HTTPS).**
 The Wikipedia tool is a simple web service that retrieves the content of a Wikipedia page.
 It's used for testing purposes, such as providing content to process with other tools.
 
-**Check the dashboard and find the port** used by the Wikipedia resource, then update and execute
-the following command:
+To proceed we need the port used by the Wikipedia service. When running docker images,
+you can find the ports in use running the following command:
+
+    docker ps
+
+If you're using .NET Aspire, you can find the port in the dashboard.
+
+Once you know the port update and execute the following command:
 
 **Bash:**
 
