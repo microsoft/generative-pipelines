@@ -3,19 +3,43 @@
 name: Dockerize Orchestrator
 
 on:
-  push:
-    branches: [ "main" ] # Runs on merge
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday at 03:00 UTC
 
 env:
-  IMAGE_NAME: orchestrator                       # ${{ env.IMAGE_NAME }}
-  LATEST_TAG: latest                             # ${{ env.LATEST_TAG }}
-  DOCKERFILE: service/Orchestrator/Dockerfile    # path to Dockerfile
-  DOCKERCTX:  service                            # docker build context
+  IMAGE_NAME:   orchestrator                       # ${{ env.IMAGE_NAME }}
+  LATEST_TAG:   latest                             # ${{ env.LATEST_TAG }}
+  DOCKERCTX:    service                            # docker build context
+  DOCKERFILE:   service/Orchestrator/Dockerfile    # path to Dockerfile
+  CHANGED_PATH: tools/Orchestrator                 # path to check for changes
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.detect.outputs.changed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect changes in last 7 days
+        id: detect
+        run: |
+          set -euo pipefail
+          git fetch --prune --unshallow origin main
+          if git log --since="7 days ago" --pretty=format: --name-only origin/main -- "${{ env.CHANGED_PATH }}" | grep .; then
+            echo "Changes detected"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
   # ARM64 build job
   arm64:
     runs-on: ubuntu-24.04-arm
+    needs: check-changes
+    if: needs.check-changes.outputs.changed == 'true'
     env:
       DOCKER_TARGET_PLATFORM: linux/arm64
     steps:
@@ -33,7 +57,7 @@ jobs:
         run: |
           set -euo pipefail
           SHORT_SHA="${GITHUB_SHA::8}"
-          docker build --push --platform linux/arm64 \
+          docker build --push --no-cache --platform linux/arm64 \
             --build-arg BUILD_IMAGE_TAG=9.0-noble-arm64v8 \
             --build-arg RUN_IMAGE_TAG=9.0-alpine-arm64v8 \
             --tag "${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64" \
@@ -60,7 +84,7 @@ jobs:
         run: |
           set -euo pipefail
           SHORT_SHA="${GITHUB_SHA::8}"
-          docker build --push --platform linux/amd64 \
+          docker build --push --no-cache --platform linux/amd64 \
             --build-arg BUILD_IMAGE_TAG=9.0-noble-amd64 \
             --build-arg RUN_IMAGE_TAG=9.0-alpine-amd64 \
             --tag "${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64" \
@@ -92,10 +116,10 @@ jobs:
           docker pull --platform linux/amd64 "$USER/$NAME:$SHORT_SHA-amd64"
           docker pull --platform linux/arm64 "$USER/$NAME:$SHORT_SHA-arm64"
 
-          # Create and publish "latest" tag
-          docker manifest create "$USER/$NAME:${{ env.LATEST_TAG }}" "$USER/$NAME:$SHORT_SHA-amd64" "$USER/$NAME:$SHORT_SHA-arm64"
-          docker manifest push "$USER/$NAME:${{ env.LATEST_TAG }}"
-
           # Create and publish "short SHA" tag
           docker manifest create "$USER/$NAME:$SHORT_SHA" "$USER/$NAME:$SHORT_SHA-amd64" "$USER/$NAME:$SHORT_SHA-arm64"
           docker manifest push "$USER/$NAME:$SHORT_SHA"
+
+          # Create and publish "latest" tag
+          docker manifest create "$USER/$NAME:${{ env.LATEST_TAG }}" "$USER/$NAME:$SHORT_SHA-amd64" "$USER/$NAME:$SHORT_SHA-arm64"
+          docker manifest push "$USER/$NAME:${{ env.LATEST_TAG }}"

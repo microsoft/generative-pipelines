@@ -71,6 +71,10 @@ aspire-manifest:
 git-ignored:
     git ls-files --others --exclude-standard --ignored
 
+# Check for typos
+check-typos:
+    @typos --config .github/_typos.toml
+
 # Create dev image for the tools Orchestrator
 dockerize-orchestrator:
     @docker buildx build --no-cache --progress tty --file service/Orchestrator/Dockerfile --tag gptools/orchestrator:local service
