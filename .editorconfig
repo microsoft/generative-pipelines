@@ -366,7 +366,6 @@ dotnet_code_quality_unused_parameters = all:suggestion
 
 [*.cs]
 
-# TODO: enable this but stop "dotnet format" from applying incorrect fixes and introducing a lot of unwanted changes.
 dotnet_analyzer_diagnostic.severity = none
 
 # Note: these settings cause "dotnet format" to fix the code. You should review each change if you uses "dotnet format".

@@ -1,13 +1,13 @@
 meta {
-  name: Search (YAML)
+  name: Search
   type: http
-  seq: 19
+  seq: 3
 }
 
 post {
-  url: {{host}}/api/jobs
+  url: http://localhost:60000/api/jobs
   body: text
-  auth: none
+  auth: inherit
 }
 
 headers {
@@ -17,24 +17,24 @@ headers {
 body:text {
   config:
     
-    # azureaisearch | InMemory | postgres | qdrant
-    vectorStorage: InMemory
+    # azureaisearch | postgres | qdrant | InMemory
+    vectorStorage: qdrant
     
-    collection:    italy
-    # .NET class mapping fields to storage. This is temporarily required to
-    # use Filters when searching records with SK MEVD.
-    dataType:     "MemoryRecord"
+    collection: foo
+    dataType: MemoryRecord
     fields:
       - name: Id
         type: id
-      - name: Embedding
-        type: vector
-        vectorSize: 100
-        vectorDistance: CosineSimilarity
-      - name: Chunk
+      - name: Content
         type: text
+      - name: ContentEmbedding
+        type: vector
+        vectorSize: 1536
+        vectorDistance: CosineSimilarity
       - name: Tags
         type: listOfText
+      - name: SourceId
+        type: text
       - name: IsTest
         type: bool
       - name: Title

@@ -1,23 +1,5 @@
 services:
 
-  portainer:
-    image: portainer/portainer-ce:latest
-    ports:
-      - "9000:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
-
-    # yacht:
-    #   image: selfhostedpro/yacht:latest
-    #   ports:
-    #     - "8000:8000"
-    #   volumes:
-    #     - /var/run/docker.sock:/var/run/docker.sock
-    #   restart: unless-stopped
-    #   environment:
-    #     - DISABLE_AUTH=True
-
 #####################################
 # ORCHESTRATOR
 #####################################
@@ -25,16 +7,9 @@ services:
   redis-storage:
     image: redis:7.4
     networks: { default: { aliases: [ redisstorage ] } }
+    restart: unless-stopped
     ports:
       - "6379:6379"
-
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    platform: linux/amd64
-    ports:
-      - "8080:8081"
-    environment:
-      - REDIS_HOSTS=local:redis-storage:6379
 
   orchestrator:
     image: gptools/orchestrator:latest
@@ -51,6 +26,8 @@ services:
       - ConnectionStrings__redisstorage=redis-storage:6379
       - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
       - ConnectionStrings__queuesstorage=${ConnectionStrings__queuesstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://127.0.0.1:64204/devstoreaccount1;}
+    depends_on:
+      - redis-storage
 
 #####################################
 # STORAGE
@@ -61,11 +38,14 @@ services:
     networks: { default: { aliases: [ postgresstorage ] } }
     ports:
       - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - ~/docker-volumes/postgres:/var/lib/postgresql/data
     environment:
       - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
       - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
 
   qdrant-storage:
     image: qdrant/qdrant:v1.12.1
@@ -73,8 +53,11 @@ services:
     ports:
       - "6333:6333"
       - "6334:6334"
+    restart: unless-stopped
+    volumes:
+      - ~/docker-volumes/qdrant:/qdrant/storage
     environment:
-      - QDRANT__SERVICE__API_KEY=${QDRANT_PASSWORD:-}
+      - QDRANT__SERVICE__API_KEY=${QDRANT_PASSWORD:-changeme}
 
 #####################################
 # TOOLS
@@ -84,6 +67,8 @@ services:
     image: gptools/extractor:latest
     ports:
       - "4013:4013"
+    depends_on:
+      - redis-storage
     environment:
       - TOOL_NAME=extractor
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
@@ -94,6 +79,8 @@ services:
     image: gptools/chunker:latest
     ports:
       - "4002:4002"
+    depends_on:
+      - redis-storage
     environment:
       - TOOL_NAME=chunker
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
@@ -104,6 +91,8 @@ services:
     image: gptools/embedding-generator:latest
     ports:
       - "5083:5083"
+    depends_on:
+      - redis-storage
     environment:
       - TOOL_NAME=embedding-generator
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
@@ -115,6 +104,8 @@ services:
     image: gptools/vector-storage-sk:latest
     ports:
       - "21365:21365"
+    depends_on:
+      - redis-storage
     environment:
       - TOOL_NAME=vector-storage-sk
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
@@ -128,6 +119,8 @@ services:
     image: gptools/typechat:latest
     ports:
       - "3000:3000"
+    depends_on:
+      - redis-storage
     environment:
       - PORT=3000
       - NODE_ENV=development
@@ -140,8 +133,73 @@ services:
     image: gptools/wikipedia:latest
     ports:
       - "6001:6001"
+    depends_on:
+      - redis-storage
     environment:
       - PORT=6001
       - TOOL_NAME=wikipedia
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
       - ConnectionStrings__redisstorage=redis-storage:6379
+
+#####################################
+# DEV
+#####################################
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    platform: linux/amd64
+    ports:
+      - "8080:8081"
+    environment:
+      - REDIS_HOSTS=local:redis-storage:6379
+    restart: unless-stopped
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+
+#  loki:
+#    image: grafana/loki:2.9.1
+#    ports:
+#      - "3100:3100"
+#    command: -config.file=/etc/loki/local-config.yaml
+#    volumes:
+#      - ~/docker-volumes/etc-loki:/etc/loki
+
+#  promtail:
+#    image: grafana/promtail:2.9.1
+#    volumes:
+#      - ~/docker-volumes/etc-promtail:/etc/promtail
+#      - ~/docker-volumes/var-lib-docker-containers:/var/lib/docker/containers:ro
+#      - ~/docker-volumes/var-log:/var/log:ro
+#      - ~/docker-volumes/etc-machine-id:/etc/machine-id:ro
+#      - ~/docker-volumes/run-log-journal:/run/log/journal:ro
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
+#    command: -config.file=/etc/promtail/promtail-config.yaml
+
+#  grafana:
+#    image: grafana/grafana:latest
+#    ports:
+#      - "13000:3000"
+#    volumes:
+#      - ~/docker-volumes/var-lib-grafana:/var/lib/grafana
+#    depends_on:
+#      - loki
+#    environment:
+#      - GF_AUTH_ANONYMOUS_ENABLED=true
+#      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+#      - GF_AUTH_DISABLE_LOGIN_FORM=true
+
+#  yacht:
+#    image: selfhostedpro/yacht:latest
+#    ports:
+#      - "8000:8000"
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    restart: unless-stopped
+#    environment:
+#      - DISABLE_AUTH=True

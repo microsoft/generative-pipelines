@@ -30,9 +30,14 @@ internal static class Program
     // Use path rather than a reference, to decouple nuget dependencies management
     private static readonly string s_orchestratorProjectFile = Path.Join("..", "service", "Orchestrator", "Orchestrator.csproj");
 
+    // HOME dir, used for docker volumes (used also by docker compose files)
+    private static readonly string s_userProfileDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
     // Where local docker image will persist their data across multiple executions, e.g. Redis cache, Postgres DBs, Qdrant collections, etc.
     // If you change this path, make sure all resources can write to it. Don't use Program.cs to create the dir to avoid incorrect permissions.
-    private static readonly string s_localDockerData = Path.GetFullPath(Path.Join("..", "..", "tools", "_docker_data"));
+    // Note: this path is used also by the docker-compose files, so it should be consistent if you expect data to be shared.
+    // private static readonly string s_localDockerData = Path.GetFullPath(Path.Join("..", "..", "tools", "_docker_data"));
+    private static readonly string s_localDockerData = Path.Join(s_userProfileDir, "docker-volumes");
 
     // Defined as static simply to avoid passing it around to all methods
     private static IDistributedApplicationBuilder s_builder = null!;
@@ -221,10 +226,13 @@ internal static class Program
         // On localhost
         if (s_builder.ExecutionContext.IsRunMode)
         {
+            // Note: default value shared with docker-compose files
+            var apiKey = s_builder.AddParameter($"{ResourceName}-Key", "changeme");
+
             // var customSecret = s_builder.AddParameter($"{ResourceName}-Key", "value here");
             // qdrant = s_builder.AddQdrant(QdrantConnStringName, apiKey: customSecret)
 
-            qdrant = s_builder.AddQdrant(QdrantConnStringName)
+            qdrant = s_builder.AddQdrant(QdrantConnStringName, apiKey: apiKey)
                 // .WithLifetime(ExternalContainersLifetime)
                 .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
         }
@@ -242,10 +250,11 @@ internal static class Program
         // On localhost ...
         if (s_builder.ExecutionContext.IsRunMode)
         {
-            // var customSecret = s_builder.AddParameter($"{ResourceName}-password", "value here");
-            // s_builder.AddPostgres(PostgresConnStringName, password: customSecret)
+            // Note: defaults shared with docker-compose files
+            var username = s_builder.AddParameter($"{ResourceName}-user", "postgres");
+            var password = s_builder.AddParameter($"{ResourceName}-password", "changeme");
 
-            postgres = s_builder.AddPostgres(PostgresConnStringName)
+            postgres = s_builder.AddPostgres(PostgresConnStringName, userName: username, password: password)
                 .WithImage(image: s_config.PostgresContainerImage, tag: s_config.PostgresContainerImageTag)
                 // .WithLifetime(ExternalContainersLifetime)
                 .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
