@@ -226,7 +226,7 @@ internal static class Program
         // On localhost
         if (s_builder.ExecutionContext.IsRunMode)
         {
-            // Note: defaults shared with docker-compose files
+            // Note: default value shared with docker-compose files
             var apiKey = s_builder.AddParameter($"{ResourceName}-Key", "changeme");
 
             // var customSecret = s_builder.AddParameter($"{ResourceName}-Key", "value here");
