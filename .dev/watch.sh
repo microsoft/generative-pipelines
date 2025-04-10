@@ -50,5 +50,5 @@ ensure_node_version
 
 cd infra/dev-with-aspire
 
-dotnet build
-dotnet run --launch-profile https
+export DOTNET_USE_POLLING_FILE_WATCHER=1
+dotnet watch

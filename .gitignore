@@ -27,6 +27,7 @@ appsettings.Production.json
 *.csr
 
 # User-specific files
+.todo/
 .vscode/
 _dev/
 *.devis.*

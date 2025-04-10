@@ -33,13 +33,17 @@ build:
         bash .dev/build.sh; \
     fi
 
-# Start all the projects
-start:
+# Start all the projects using Docker images
+dev:
     @if [ "${OS:-}" = "Windows_NT" ]; then \
         pwsh -File .dev/start.ps1; \
     else \
         bash .dev/start.sh; \
     fi
+
+# Start all the projects from source code using Aspire
+start:
+    @cd infra/dev-with-docker && docker compose up
 
 # Remove temporary files, build artifacts, and caches
 clean:
