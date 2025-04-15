@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.AspNetCore.StaticFiles;
+using Orchestrator.Config;
 using Orchestrator.Diagnostics;
 using Orchestrator.Http;
 using Orchestrator.Models;
@@ -13,25 +15,25 @@ namespace Orchestrator;
 
 internal static class Program
 {
+    private const string BlobStorageName = "blobstorage";
+    private const string RedisStorageName = "redisstorage";
     private static readonly JsonSerializerOptions s_jsonSerializerOptions = new() { WriteIndented = true };
 
     public static void Main(string[] args)
     {
         // App setup
-        var builder = WebApplication.CreateBuilder(args);
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         builder
             .AddLogging()
-            .AddRedisClient(connectionName: "redisstorage");
+            .AddOrchestrationWorkspace(blobStorageName: BlobStorageName)
+            .AddRedisClient(connectionName: RedisStorageName);
+
         builder.Services
             .ConfigureSerializationOptions()
             .AddOpenApi()
             .AddToolsHttpClients(builder.Configuration)
-            .AddOrchestrationWorkspace();
-
-        builder.Services.AddSingleton(builder.Configuration.GetSection("App").Get<AppConfig>()?.Validate() ?? throw new ApplicationException(nameof(AppConfig) + " not available"));
-        builder.Services.AddSingleton(builder.Configuration.GetSection("App:Orchestrator").Get<OrchestratorConfig>()?.Validate() ?? throw new ApplicationException(nameof(OrchestratorConfig) + " not available"));
-        builder.Services.AddSingleton<SimpleWorkspace>();
-        builder.Services.AddSingleton<SynchronousOrchestrator>();
+            .AddSingleton(builder.Configuration.GetSection("App").Get<AppConfig>()?.Validate() ?? throw new ApplicationException(nameof(AppConfig) + " not available"))
+            .AddSingleton<SynchronousOrchestrator>();
 
         // Abb build
         var app = builder.Build();
@@ -50,14 +52,14 @@ internal static class Program
         });
 
         // Dependencies
-        var log = app.Logger;
+        ILogger log = app.Logger;
         var appConfig = app.Services.GetService<AppConfig>()!;
         var orchestrator = app.Services.GetService<SynchronousOrchestrator>()!;
-        var orchestratorConfig = app.Services.GetService<OrchestratorConfig>()!;
+        var workspaceConfig = app.Services.GetService<WorkspaceConfig>()!;
         var tools = ToolDiscovery.GetTools(app.Configuration);
         var authFilter = new HttpAuthEndpointFilter(appConfig.Authorization);
 
-        log.LogInformation("Starting Orchestrator, workspace: {Workspace},", Logging.RemovePiiFromPath(orchestratorConfig.WorkspaceDir));
+        log.LogWorkspaceDetails(workspaceConfig, builder.Configuration, BlobStorageName);
 
         // =====================================================================
         // =====================================================================
@@ -93,10 +95,16 @@ internal static class Program
                     return Results.InternalServerError($"Unable to parse request: {nameof(input)} is null");
                 }
 
+                // TODO: store duration into workflow metadata
+                var clock = new Stopwatch();
+                clock.Start();
+
                 (object? result, string workflowId, IResult? error) result = await orchestrator.RunWorkflowAsync(
                     input, workflow, cancellationToken).ConfigureAwait(false);
 
-                log.LogInformation("Job {JobId} completed successfully", result.workflowId);
+                clock.Stop();
+
+                log.LogInformation("Job {JobId} completed successfully in {Duration} msecs", result.workflowId, clock.ElapsedMilliseconds);
                 return result.error ?? Results.Ok(result.result);
             })
             .AddEndpointFilter(authFilter)
@@ -165,7 +173,7 @@ internal static class Program
             {
                 var data = new OrchestratorStatus
                 {
-                    WorkspaceDir = Logging.RemovePiiFromPath(orchestratorConfig.WorkspaceDir),
+                    WorkspaceDir = Logging.RemovePiiFromPath(workspaceConfig.WorkspaceDir),
                     Environment = new
                     {
                         CurrentDirectory = Logging.RemovePiiFromPath(Environment.CurrentDirectory),

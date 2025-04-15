@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using DevLab.JmesPath;
 using Microsoft.Extensions.Logging.Abstractions;
+using Orchestrator.Config;
 using Orchestrator.Models;
 using Orchestrator.Storage;
 
@@ -27,7 +28,7 @@ internal sealed class SimpleWorkspace
     private bool _initialized = false;
 
     public SimpleWorkspace(
-        OrchestratorConfig config,
+        WorkspaceConfig config,
         IFileSystem fileSystem,
         ILoggerFactory? loggerFactory = null)
     {
@@ -53,9 +54,9 @@ internal sealed class SimpleWorkspace
 
         var context = new JobContext { Start = input, State = input };
 
-        await this.StoreWorkflowFileAsync(workflow, ct).ConfigureAwait(false);
-        await this.StoreInputFileAsync(workflow.JobId, input, ct).ConfigureAwait(false);
-        await this.StoreContextFileAsync(workflow.JobId, context, ct).ConfigureAwait(false);
+        await this.CreateWorkflowFileAsync(workflow, ct).ConfigureAwait(false);
+        await this.CreateInputFileAsync(workflow.JobId, input, ct).ConfigureAwait(false);
+        await this.CreateContextFileAsync(workflow.JobId, context, ct).ConfigureAwait(false);
     }
 
     public async Task<JobContext> GetContextAsync(string jobId, CancellationToken ct)
@@ -71,7 +72,7 @@ internal sealed class SimpleWorkspace
                ?? throw new ApplicationException("Failed to deserialize context");
     }
 
-    public async Task StoreInputFileAsync(string jobId, JsonObject input, CancellationToken ct)
+    public async Task CreateInputFileAsync(string jobId, JsonObject input, CancellationToken ct)
     {
         await this.EnsureDirectoryExistsAsync(ct).ConfigureAwait(false);
 
@@ -79,10 +80,10 @@ internal sealed class SimpleWorkspace
 
         string inputAsString = input.ToJsonString(s_jsonSerializerOptions);
         string inputFile = this._fileSystem.CombinePath(workspaceDir, InputFile);
-        await this._fileSystem.WriteAllTextAsync(inputFile, inputAsString, ct).ConfigureAwait(false);
+        await this._fileSystem.WriteAllTextAsync(inputFile, inputAsString, true, ct).ConfigureAwait(false);
     }
 
-    public async Task StoreWorkflowFileAsync(Workflow workflow, CancellationToken ct)
+    public async Task CreateWorkflowFileAsync(Workflow workflow, CancellationToken ct)
     {
         await this.EnsureDirectoryExistsAsync(ct).ConfigureAwait(false);
 
@@ -90,10 +91,10 @@ internal sealed class SimpleWorkspace
 
         string workflowAsString = JsonSerializer.Serialize(workflow, s_jsonSerializerOptions);
         string workflowFile = this._fileSystem.CombinePath(workspaceDir, WorkflowFile);
-        await this._fileSystem.WriteAllTextAsync(workflowFile, workflowAsString, ct).ConfigureAwait(false);
+        await this._fileSystem.WriteAllTextAsync(workflowFile, workflowAsString, true, ct).ConfigureAwait(false);
     }
 
-    public async Task StoreContextFileAsync(string jobId, JobContext jobContext, CancellationToken ct)
+    public async Task CreateContextFileAsync(string jobId, JobContext jobContext, CancellationToken ct)
     {
         await this.EnsureDirectoryExistsAsync(ct).ConfigureAwait(false);
 
@@ -101,7 +102,18 @@ internal sealed class SimpleWorkspace
 
         string contextFile = this._fileSystem.CombinePath(workspaceDir, ContextFile);
         string contextAsString = JsonSerializer.Serialize(jobContext, s_jsonSerializerOptions);
-        await this._fileSystem.WriteAllTextAsync(contextFile, contextAsString, ct).ConfigureAwait(false);
+        await this._fileSystem.WriteAllTextAsync(contextFile, contextAsString, true, ct).ConfigureAwait(false);
+    }
+
+    public async Task UpdateContextFileAsync(string jobId, JobContext jobContext, CancellationToken ct)
+    {
+        await this.EnsureDirectoryExistsAsync(ct).ConfigureAwait(false);
+
+        string workspaceDir = this.GetWorkspacePath(jobId);
+
+        string contextFile = this._fileSystem.CombinePath(workspaceDir, ContextFile);
+        string contextAsString = JsonSerializer.Serialize(jobContext, s_jsonSerializerOptions);
+        await this._fileSystem.WriteAllTextAsync(contextFile, contextAsString, false, ct).ConfigureAwait(false);
     }
 
     public async Task<object?> TransformContextAsync(JobContext jobContext, string jmesExpression, CancellationToken ct)
