@@ -19,6 +19,14 @@ title: Trope
 _workflow:
     steps:
     - function: wikipedia/en
+
+    - function: chunker/chunk
+      xin: >
+        {
+          text:              state.content,
+          tokenizer:         'gpt4o',
+          maxTokensPerChunk: `50`
+        }
 """
 
 print("=== PIPELNE ===")

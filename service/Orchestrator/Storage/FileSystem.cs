@@ -17,18 +17,13 @@ internal sealed class FileSystem : IFileSystem
         return Task.CompletedTask;
     }
 
-    public Task<bool> DirectoryExistsAsync(string path, CancellationToken ct = default)
-    {
-        return Task.FromResult(Directory.Exists(path));
-    }
-
     public Task CreateDirectoryAsync(string path, CancellationToken ct = default)
     {
         Directory.CreateDirectory(path);
         return Task.CompletedTask;
     }
 
-    public Task WriteAllTextAsync(string filename, string content, CancellationToken ct = default)
+    public Task WriteAllTextAsync(string filename, string content, bool firstWrite, CancellationToken ct = default)
     {
         return File.WriteAllTextAsync(filename, content, ct);
     }

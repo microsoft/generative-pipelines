@@ -99,7 +99,7 @@ internal sealed class SynchronousOrchestrator : IDisposable
             }
 
             // Persist context after the transformation, before running the function
-            await this._workspace.StoreContextFileAsync(workflow.JobId, jobContext, cancellationToken).ConfigureAwait(false);
+            await this._workspace.UpdateContextFileAsync(workflow.JobId, jobContext, cancellationToken).ConfigureAwait(false);
 
             // ============================
             // ==== 2: Invoke function ====
@@ -162,7 +162,7 @@ internal sealed class SynchronousOrchestrator : IDisposable
             // Persist context after the function, before xout transformation
             if (functionDetails.Type != FunctionDetails.FunctionTypes.None)
             {
-                await this._workspace.StoreContextFileAsync(workflow.JobId, jobContext, cancellationToken).ConfigureAwait(false);
+                await this._workspace.UpdateContextFileAsync(workflow.JobId, jobContext, cancellationToken).ConfigureAwait(false);
             }
 
             // ==================================
@@ -195,7 +195,7 @@ internal sealed class SynchronousOrchestrator : IDisposable
 
             // Persist context
             stepContext.Out = jobContext.State;
-            await this._workspace.StoreContextFileAsync(workflow.JobId, jobContext, cancellationToken).ConfigureAwait(false);
+            await this._workspace.UpdateContextFileAsync(workflow.JobId, jobContext, cancellationToken).ConfigureAwait(false);
         }
 
         activity?.AddEvent(new ActivityEvent("Job end"));
