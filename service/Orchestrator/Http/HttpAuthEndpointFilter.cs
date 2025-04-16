@@ -35,6 +35,14 @@ internal sealed class HttpAuthEndpointFilter : IEndpointFilter
             }
 
             key = key.Trim();
+
+            // Don't allow empty keys, regardless of the configuration.
+            // This is to prevent accidental deployments with empty access keys.
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return Results.Problem(detail: "Missing Access Key", statusCode: 403);
+            }
+
             if (!string.Equals(key, this._config.AccessKey1, StringComparison.Ordinal)
                 && !string.Equals(key, this._config.AccessKey2, StringComparison.Ordinal))
             {

@@ -5,6 +5,7 @@
         <RollForward>LatestMajor</RollForward>
         <Nullable>enable</Nullable>
         <NoWarn>CA1812;CA2201;CA1308;IDE0040;</NoWarn>
+        <UserSecretsId>271316ec-ff7d-4a48-a404-8e88ff1aaccd</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

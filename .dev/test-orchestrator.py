@@ -11,6 +11,7 @@ if sys.version_info < (3, 11):
 
 #print(f"📂 Working directory: {os.getcwd()}")
 
+#url = 'https://orchestrator......azurecontainerapps.io/api/jobs'
 url = 'http://localhost:60000/api/jobs'
 accessKey = ''
 

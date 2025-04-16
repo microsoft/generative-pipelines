@@ -7,20 +7,6 @@ namespace Aspire.AppHost.Internals;
 public class AppSettings
 {
     /// <summary>
-    /// Access key required to access the Orchestrator API.
-    /// If empty, Aspire AppHost sets a random key when deploying the Orchestrator to Azure.
-    /// </summary>
-    [JsonPropertyName("AccessKey1")]
-    public string? AccessKey1 { get; set; }
-
-    /// <summary>
-    /// Access key required to access the Orchestrator API.
-    /// If empty, Aspire AppHost sets a random key when deploying the Orchestrator to Azure.
-    /// </summary>
-    [JsonPropertyName("AccessKey2")]
-    public string? AccessKey2 { get; set; }
-
-    /// <summary>
     /// Whether to deploy Postgres, both locally and on Azure.
     /// </summary>
     [JsonPropertyName("UsePostgres")]
