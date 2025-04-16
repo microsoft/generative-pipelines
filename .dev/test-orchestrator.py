@@ -3,6 +3,7 @@
 import sys
 import requests
 import json
+import os
 
 # Check Python version
 if sys.version_info < (3, 11):
@@ -11,9 +12,15 @@ if sys.version_info < (3, 11):
 
 #print(f"📂 Working directory: {os.getcwd()}")
 
-#url = 'https://orchestrator......azurecontainerapps.io/api/jobs'
-url = 'http://localhost:60000/api/jobs'
-accessKey = ''
+
+# To override the defaults, run:
+#
+#     ENDPOINT=http://localhost:60000 KEY="..." python .dev/test-orchestrator.py
+#
+#     ENDPOINT=https://orchestrator.....azurecontainerapps.io KEY="..." python .dev/test-orchestrator.py
+
+url = os.getenv("ENDPOINT", "http://localhost:60000").rstrip("/") + "/api/jobs"
+accessKey = os.getenv("KEY", "")
 
 headers = {
     'Content-Type': 'application/x-yaml',

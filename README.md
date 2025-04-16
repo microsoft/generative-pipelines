@@ -24,6 +24,8 @@ Tools can contain a single function or multiple functions. These functions are o
 **custom pipelines** to handle tasks such as data ingestion, transformation, storage, retrieval,
 and analysis.
 
+![Tools Architecture](docs/img/tools.png)
+
 - **Tools** are web services
 - **Functions** are HTTP endpoints
 - Functions are composed into pipelines / workflows
