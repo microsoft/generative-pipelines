@@ -12,7 +12,12 @@ if sys.version_info < (3, 11):
 #print(f"📂 Working directory: {os.getcwd()}")
 
 url = 'http://localhost:60000/api/jobs'
-headers = {'Content-Type': 'application/x-yaml'}
+accessKey = ''
+
+headers = {
+    'Content-Type': 'application/x-yaml',
+    'Authorization': accessKey
+}
 pipeline = """
 title: Trope
   
