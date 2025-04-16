@@ -1,3 +1,6 @@
+# Detect the python executable
+python := if os_family() == "windows" { "python" } else { "python3" }
+
 # Default command when no command is provided
 _default:
     @just --list
@@ -18,3 +21,20 @@ start:
         bash ../../.dev/start.sh; \
     fi
 
+# Build all and deploy to Azure (requires first time provisioning)
+deploy: build _deploy
+
+# Skip build and deploy to Azure what is already built
+deploy-current-build: _deploy
+
+# Build deployment manifest
+manifest:
+    @{{python}} ../../.dev/aspire-manifest.py
+
+###################
+#### Internals ####
+###################
+
+# Deploy to Azure (using existing build)
+_deploy:
+    @{{python}} ../../.dev/aspire-deploy.py
