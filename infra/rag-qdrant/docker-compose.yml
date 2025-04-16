@@ -4,23 +4,34 @@ services:
 # ORCHESTRATOR
 #####################################
 
-  redis-storage:
-    image: redis:7.4
-    networks: { default: { aliases: [ redisstorage ] } }
+  azure-storage:
+    # https://learn.microsoft.com/azure/storage/common/storage-use-azurite
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command: "azurite --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001 --skipApiVersionCheck"
+    networks: { default: { aliases: [ blobstorage, queuestorage ] } }
     ports:
-      - "6379:6379"
+      - "10000:10000"
+      - "10001:10001"
+    restart: unless-stopped
+    volumes:
+      - ~/docker-volumes/azurite:/data
 
   orchestrator:
     image: gptools/orchestrator:latest
     ports:
       - "60000:60000"
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - Logging__LogLevel__Default=Debug
       - services__chunker__http__0=http://chunker:4002
       - services__extractor__http__0=http://extractor:4013
       - services__embedding_generator__http__0=http://embedding-generator:5083
       - services__vector_storage_sk__http__0=http://vector-storage-sk:21365
       - services__wikipedia__http__0=http://wikipedia:6001
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
+      - ConnectionStrings__queuestorage=${ConnectionStrings__queuestorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://queuestorage:10001/devstoreaccount1;}
+    depends_on:
+      - azure-storage
 
 #####################################
 # STORAGE
@@ -36,7 +47,7 @@ services:
     volumes:
       - ~/docker-volumes/qdrant:/qdrant/storage
     environment:
-      - QDRANT__SERVICE__API_KEY=${QDRANT_PASSWORD:-changeme}
+      - QDRANT__SERVICE__API_KEY=${QDRANT__SERVICE__API_KEY:-changeme}
 
 #####################################
 # TOOLS
@@ -47,24 +58,27 @@ services:
     ports:
       - "4013:4013"
     environment:
-      - TOOL_NAME=extractor
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__LogLevel__Default=Information
+      - GenerativePipelines__ToolsRegistryEnabled=false
 
   chunker:
     image: gptools/chunker:latest
     ports:
       - "4002:4002"
     environment:
-      - TOOL_NAME=chunker
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__LogLevel__Default=Information
+      - GenerativePipelines__ToolsRegistryEnabled=false
 
   embedding-generator:
     image: gptools/embedding-generator:latest
     ports:
       - "5083:5083"
     environment:
-      - TOOL_NAME=embedding-generator
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__LogLevel__Default=Information
+      - GenerativePipelines__ToolsRegistryEnabled=false
       - App__OpenAI__ApiKey=${OPENAI_API_KEY:-}
 
   vector-storage-sk:
@@ -72,15 +86,18 @@ services:
     ports:
       - "21365:21365"
     environment:
-      - TOOL_NAME=vector-storage-sk
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
-      - Logging__LogLevel__Default=Debug
-      - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=}
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__LogLevel__Default=Information
+      - GenerativePipelines__ToolsRegistryEnabled=false
+      - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=changeme}
 
   wikipedia:
     image: gptools/wikipedia:latest
     ports:
       - "6001:6001"
     environment:
-      - PORT=6001
-      - TOOL_NAME=wikipedia
+      - UVICORN_PORT=6001
+      - PYTHONDEBUG=1
+      - PYTHON_ENV=development
+      - APP_ENV=development
+      - LOG_LEVEL=INFO

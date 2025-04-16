@@ -79,31 +79,31 @@ git-ignored:
 check-typos:
     @typos --config .github/_typos.toml
 
-# Create dev image for the tools Orchestrator
+# Create dev image for the tools Orchestrator (tag: local)
 dockerize-orchestrator:
     @docker buildx build --no-cache --progress tty --file service/Orchestrator/Dockerfile --tag gptools/orchestrator:local service
 
-# Create dev image for the Chunker tool
+# Create dev image for the Chunker tool (tag: local)
 dockerize-chunker:
     @docker buildx build --no-cache --progress tty --file tools/Chunker/Dockerfile --tag gptools/chunker:local tools
 
-# Create dev image for the Embedding Generator tool
+# Create dev image for the Embedding Generator tool (tag: local)
 dockerize-embedding-generator:
     @docker buildx build --no-cache --progress tty --file tools/EmbeddingGenerator/Dockerfile --tag gptools/embedding-generator:local tools
 
-# Create dev image for the Extractor tool
+# Create dev image for the Extractor tool (tag: local)
 dockerize-extractor:
     @docker buildx build --no-cache --progress tty --file tools/Extractor/Dockerfile --tag gptools/extractor:local tools
 
-# Create dev image for the Vector Storage SK tool
+# Create dev image for the Vector Storage SK tool (tag: local)
 dockerize-vector-storage-sk:
     @docker buildx build --no-cache --progress tty --file tools/VectorStorageSk/Dockerfile --tag gptools/vector-storage-sk:local tools
 
-# Create dev image for the TypeChat tool
+# Create dev image for the TypeChat tool (tag: local)
 dockerize-typechat:
     @docker buildx build --no-cache --progress tty --file tools/TypeChat/Dockerfile --tag gptools/typechat:local tools/TypeChat
 
-# Create dev image for the Wikipedia tool
+# Create dev image for the Wikipedia tool (tag: local)
 dockerize-wikipedia:
     @docker buildx build --no-cache --progress tty --file tools/Wikipedia/Dockerfile --tag gptools/wikipedia:local tools/Wikipedia
 

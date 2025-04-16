@@ -2,38 +2,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace Orchestrator.Models;
-
-internal sealed class AppConfig
-{
-    public AuthorizationConfig Authorization { get; set; } = new();
-    public OrchestratorConfig Orchestrator { get; set; } = new();
-
-    public AppConfig Validate()
-    {
-        this.Orchestrator.Validate();
-        this.Authorization.Validate();
-        return this;
-    }
-}
-
-internal sealed class OrchestratorConfig
-{
-    private static readonly string[] s_defaultWorkspace = ["generative-pipelines", "data", "workspace"];
-    private static readonly string s_userProfileDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-    public string WorkspaceDir { get; set; } = string.Empty;
-
-    public OrchestratorConfig Validate()
-    {
-#pragma warning disable IDE0055
-        this.WorkspaceDir = string.IsNullOrWhiteSpace(this.WorkspaceDir)
-            ? Path.Join([s_userProfileDir, ..s_defaultWorkspace])
-            : this.WorkspaceDir.Replace('\\', '/').Replace('/', Path.DirectorySeparatorChar);
-#pragma warning restore IDE0055
-        return this;
-    }
-}
+namespace Orchestrator.Config;
 
 internal sealed class AuthorizationConfig
 {

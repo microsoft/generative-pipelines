@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 using Microsoft.Extensions.Primitives;
-using Orchestrator.Models;
+using Orchestrator.Config;
 
 namespace Orchestrator.Http;
 

@@ -11,12 +11,25 @@ services:
     ports:
       - "6379:6379"
 
+  azure-storage:
+    # https://learn.microsoft.com/azure/storage/common/storage-use-azurite
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command: "azurite --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001 --skipApiVersionCheck"
+    networks: { default: { aliases: [ blobstorage, queuestorage ] } }
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+    restart: unless-stopped
+    volumes:
+      - ~/docker-volumes/azurite:/data
+
   orchestrator:
     image: gptools/orchestrator:latest
     ports:
       - "60000:60000"
     environment:
       - Logging__LogLevel__Default=Debug
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - services__chunker__http__0=http://chunker:4002
       - services__extractor__http__0=http://extractor:4013
       - services__embedding_generator__http__0=http://embedding-generator:5083
@@ -24,10 +37,11 @@ services:
       - services__type-chat__http__0=http://type-chat:3000
       - services__wikipedia__http__0=http://wikipedia:6001
       - ConnectionStrings__redisstorage=redis-storage:6379
-      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
-      - ConnectionStrings__queuesstorage=${ConnectionStrings__queuesstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://127.0.0.1:64204/devstoreaccount1;}
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
+      - ConnectionStrings__queuestorage=${ConnectionStrings__queuestorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://queuestorage:10001/devstoreaccount1;}
     depends_on:
       - redis-storage
+      - azure-storage
 
 #####################################
 # STORAGE
@@ -57,7 +71,7 @@ services:
     volumes:
       - ~/docker-volumes/qdrant:/qdrant/storage
     environment:
-      - QDRANT__SERVICE__API_KEY=${QDRANT_PASSWORD:-changeme}
+      - QDRANT__SERVICE__API_KEY=${QDRANT__SERVICE__API_KEY:-changeme}
 
 #####################################
 # TOOLS
@@ -70,10 +84,12 @@ services:
     depends_on:
       - redis-storage
     environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - TOOL_NAME=extractor
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
+      - Logging__LogLevel__Default=Information
       - ConnectionStrings__redisstorage=redis-storage:6379
-      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
 
   chunker:
     image: gptools/chunker:latest
@@ -82,10 +98,12 @@ services:
     depends_on:
       - redis-storage
     environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - TOOL_NAME=chunker
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
+      - Logging__LogLevel__Default=Information
       - ConnectionStrings__redisstorage=redis-storage:6379
-      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
 
   embedding-generator:
     image: gptools/embedding-generator:latest
@@ -94,10 +112,12 @@ services:
     depends_on:
       - redis-storage
     environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - TOOL_NAME=embedding-generator
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
+      - Logging__LogLevel__Default=Information
       - ConnectionStrings__redisstorage=redis-storage:6379
-      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
       - App__OpenAI__ApiKey=${OPENAI_API_KEY:-}
 
   vector-storage-sk:
@@ -107,13 +127,14 @@ services:
     depends_on:
       - redis-storage
     environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - TOOL_NAME=vector-storage-sk
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
       - Logging__LogLevel__Default=Debug
       - ConnectionStrings__redisstorage=redis-storage:6379
-      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
-      - ConnectionStrings__postgresstorage=${ConnectionStrings__postgresstorage:-Host=postgresstorage;Port=5432;Username=postgres;Password=}
-      - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=}
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
+      - ConnectionStrings__postgresstorage=${ConnectionStrings__postgresstorage:-Host=postgresstorage;Port=5432;Username=postgres;Password=changeme}
+      - ConnectionStrings__qdrantstorage=${ConnectionStrings__qdrantstorage:-Endpoint=http://qdrantstorage:6333;Key=changeme}
 
   type-chat:
     image: gptools/typechat:latest
@@ -125,9 +146,9 @@ services:
       - PORT=3000
       - NODE_ENV=development
       - TOOL_NAME=type-chat
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
       - ConnectionStrings__redisstorage=redis-storage:6379
-      - ConnectionStrings__blobsstorage=${ConnectionStrings__blobsstorage:-http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:64203/devstoreaccount1;}
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
 
   wikipedia:
     image: gptools/wikipedia:latest
@@ -136,9 +157,13 @@ services:
     depends_on:
       - redis-storage
     environment:
-      - PORT=6001
+      - UVICORN_PORT=6001
+      - PYTHONDEBUG=1
+      - PYTHON_ENV=development
+      - APP_ENV=development
+      - LOG_LEVEL=INFO
       - TOOL_NAME=wikipedia
-      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-false}
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
       - ConnectionStrings__redisstorage=redis-storage:6379
 
 #####################################

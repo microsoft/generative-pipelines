@@ -38,6 +38,9 @@ internal sealed class ChunkFunction
                 return Results.BadRequest("Unsupported tokenizer, try 'cl100k_base' or 'char'");
         }
 
+        this._log.LogDebug("Using tokenizer {Tokenizer} ({TokenizerType}), chunk size: {MaxTokensPerChunk}, overlap: {Overlap}",
+            req.Tokenizer, tokenizer.GetType().Name, req.MaxTokensPerChunk, req.Overlap);
+
         var chunker = new PlainTextChunker(tokenizer);
         List<string> chunks = chunker.Split(req.Text, new PlainTextChunkerOptions
         {

@@ -1,3 +1,6 @@
+# Detect the python executable
+python := if os_family() == "windows" { "python" } else { "python3" }
+
 # Default command when no command is provided
 _default:
     @just --list
@@ -17,6 +20,10 @@ stop:
 # Restart all services
 restart:
     @docker compose restart
+
+# Test the orchestrator
+test:
+    @{{python}} test.py
 
 # Show real time stats from the services
 stats:

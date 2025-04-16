@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using Orchestrator.Config;
+
 namespace Orchestrator.Diagnostics;
 
 internal static class Logging
@@ -26,23 +28,31 @@ internal static class Logging
         ));
     }
 
-    // Old code using array of dirs to hide
-    // internal string MaskDir(string? dir)
-    // {
-    //     if (dir == null || this.DevDirMasks == null || this.DevDirMasks.Count == 0)
-    //     {
-    //         return dir ?? string.Empty;
-    //     }
-    //
-    //     var sortedKeys = this.DevDirMasks.Keys.OrderByDescending(key => key.Length);
-    //     foreach (var prefix in sortedKeys)
-    //     {
-    //         if (dir.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-    //         {
-    //             return $"{this.DevDirMasks[prefix]}{dir[prefix.Length..]}";
-    //         }
-    //     }
-    //
-    //     return dir;
-    // }
+    public static void LogWorkspaceDetails(this ILogger log, WorkspaceConfig workspaceConfig, IConfiguration config, string blobStorageName)
+    {
+        if (workspaceConfig.UseFileSystem)
+        {
+            log.LogInformation("Starting Orchestrator, workspace on disk: {WorkspaceDir}", RemovePiiFromPath(workspaceConfig.WorkspaceDir));
+        }
+        else
+        {
+            string blobInfo = "";
+            Dictionary<string, string>? connectionStrings = config.GetSection("ConnectionStrings").Get<Dictionary<string, string>>();
+            string? cs = connectionStrings?.GetValueOrDefault(blobStorageName, "-");
+            if (cs != null && cs.Contains("BlobEndpoint=", StringComparison.OrdinalIgnoreCase))
+            {
+                blobInfo = cs.Split(';').FirstOrDefault(x => x.StartsWith("BlobEndpoint=", StringComparison.OrdinalIgnoreCase))?.Split('=')[1] ?? string.Empty;
+            }
+            else if (cs != null && cs.Contains("AccountKey=", StringComparison.OrdinalIgnoreCase))
+            {
+                blobInfo = cs.Split(';').FirstOrDefault(x => x.StartsWith("AccountName=", StringComparison.OrdinalIgnoreCase))?.Split('=')[1] ?? string.Empty;
+            }
+            else if (cs != null && cs.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                blobInfo = cs;
+            }
+
+            log.LogInformation("Starting Orchestrator, workspace on blob storage: {BlobStorageDetails}", blobInfo);
+        }
+    }
 }

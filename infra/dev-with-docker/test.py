@@ -12,18 +12,21 @@ if sys.version_info < (3, 11):
 #print(f"📂 Working directory: {os.getcwd()}")
 
 url = 'http://localhost:60000/api/jobs'
-accessKey = ''
-
-headers = {
-    'Content-Type': 'application/x-yaml',
-    'Authorization': accessKey
-}
+headers = {'Content-Type': 'application/x-yaml'}
 pipeline = """
 title: Trope
   
 _workflow:
     steps:
     - function: wikipedia/en
+
+    - function: chunker/chunk
+      xin: >
+        {
+          text:              state.content,
+          tokenizer:         'gpt4o',
+          maxTokensPerChunk: `50`
+        }
 """
 
 print("=== PIPELNE ===")

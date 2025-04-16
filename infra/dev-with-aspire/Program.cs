@@ -18,8 +18,8 @@ internal static class Program
     private const string QdrantConnStringName = "qdrantstorage";
     private const string PostgresConnStringName = "postgresstorage";
     private const string AzureAiSearchConnStringName = "aisearchstorage";
-    private const string AzureBlobsConnStringName = "blobsstorage";
-    private const string AzureQueuesConnStringName = "queuesstorage";
+    private const string AzureBlobsConnStringName = "blobstorage";
+    private const string AzureQueuesConnStringName = "queuestorage";
 
     // Let the containers run when the host stops. Used for Qdrant, Redis, etc.
     // private const ContainerLifetime ExternalContainersLifetime = ContainerLifetime.Persistent;
@@ -108,6 +108,14 @@ internal static class Program
         if (redis != null)
         {
             orchestrator.WithReference(redis).WaitFor(redis);
+        }
+
+        // Force authentication when running on Azure, overriding appsettings.json
+        if (s_builder.ExecutionContext.IsPublishMode)
+        {
+            orchestrator.WithEnvironment("App__Authorization__Type", "AccessKey");
+            orchestrator.WithEnvironment("App__Authorization__AccessKey1", Utils.GenerateSecret(24));
+            orchestrator.WithEnvironment("App__Authorization__AccessKey2", Utils.GenerateSecret(24));
         }
 
         return orchestrator;
