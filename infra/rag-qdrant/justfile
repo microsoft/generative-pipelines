@@ -8,7 +8,7 @@ ps:
 
 # Start all services
 start:
-    @docker compose up -d
+    @docker compose up --detach --pull always
 
 # Stop all services
 stop:
