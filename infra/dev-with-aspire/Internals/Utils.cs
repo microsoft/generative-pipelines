@@ -16,9 +16,9 @@ internal static class Utils
             throw new ArgumentOutOfRangeException(nameof(length), "Length must be between 8 and 255.");
         }
 
-        if (charSetLength is 0 or > 256)
+        if (charSetLength is < 20 or > 256)
         {
-            throw new ArgumentException("AllowedChars.Length must be between 1 and 256.");
+            throw new ArgumentException("AllowedChars.Length must be between 20 and 256.");
         }
 
         int maxRandom = 256 - (256 % charSetLength);

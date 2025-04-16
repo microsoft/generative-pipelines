@@ -110,12 +110,16 @@ internal static class Program
             orchestrator.WithReference(redis).WaitFor(redis);
         }
 
-        // Force authentication when running on Azure, overriding appsettings.json
+        // Force authentication when running on Azure, overriding Orchestrator's appsettings.json
+        // Keys can be set in the AppHost appsettings.json file, or randomly generated.
         if (s_builder.ExecutionContext.IsPublishMode)
         {
             orchestrator.WithEnvironment("App__Authorization__Type", "AccessKey");
-            orchestrator.WithEnvironment("App__Authorization__AccessKey1", Utils.GenerateSecret(24));
-            orchestrator.WithEnvironment("App__Authorization__AccessKey2", Utils.GenerateSecret(24));
+
+            var key1 = string.IsNullOrWhiteSpace(s_config.AccessKey1) ? Utils.GenerateSecret(24) : s_config.AccessKey1;
+            var key2 = string.IsNullOrWhiteSpace(s_config.AccessKey2) ? Utils.GenerateSecret(24) : s_config.AccessKey2;
+            orchestrator.WithEnvironment("App__Authorization__AccessKey1", key1);
+            orchestrator.WithEnvironment("App__Authorization__AccessKey2", key2);
         }
 
         return orchestrator;

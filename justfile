@@ -43,7 +43,7 @@ dev:
 
 # Start all the projects from source code using Aspire
 start:
-    @cd infra/dev-with-docker && docker compose up
+    @cd infra/dev-with-docker && docker compose up --pull always
 
 # Remove temporary files, build artifacts, and caches
 clean:
