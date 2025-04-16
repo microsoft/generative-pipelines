@@ -21,4 +21,4 @@ COPY ./app /app/app
 # Keep working dir as /app
 WORKDIR /app
 
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-6001}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${UVICORN_PORT:-6001}"]

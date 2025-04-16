@@ -96,7 +96,7 @@ services:
     ports:
       - "6001:6001"
     environment:
-      - PORT=6001
+      - UVICORN_PORT=6001
       - PYTHONDEBUG=1
       - PYTHON_ENV=development
       - APP_ENV=development
