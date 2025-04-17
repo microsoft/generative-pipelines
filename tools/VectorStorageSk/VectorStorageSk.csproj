@@ -21,9 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Azure.Search.Documents" Version="9.1.0" />
-        <PackageReference Include="Aspire.Npgsql" Version="9.1.0" />
-        <PackageReference Include="Aspire.Qdrant.Client" Version="9.1.0" />
+        <PackageReference Include="Aspire.Azure.Search.Documents" Version="9.2.0" />
+        <PackageReference Include="Aspire.Npgsql" Version="9.2.0" />
+        <PackageReference Include="Aspire.Qdrant.Client" Version="9.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.OData" Version="9.2.1" />
         <PackageReference Include="Microsoft.OData.Edm" Version="8.2.3" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0.2" />

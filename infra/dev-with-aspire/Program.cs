@@ -21,9 +21,6 @@ internal static class Program
     private const string AzureBlobsConnStringName = "blobstorage";
     private const string AzureQueuesConnStringName = "queuestorage";
 
-    // Let the containers run when the host stops. Used for Qdrant, Redis, etc.
-    // private const ContainerLifetime ExternalContainersLifetime = ContainerLifetime.Persistent;
-
     // Directory containing the tools to be available via the orchestrator.
     private static readonly string s_toolsPath = Path.Join("..", "..", "tools");
 
@@ -71,11 +68,14 @@ internal static class Program
         List<IResourceBuilder<IResourceWithConnectionString>?> references = [redis, azSearch, postgres, qdrant, azureStorage.blobs, azureStorage.queues];
 
         // Tools
+        var toolNames = new List<string>();
         Echo("=================================");
-        AddDotNetTools(orchestrator, references);
-        AddNodeJsTools(orchestrator, references);
-        AddPythonTools(orchestrator, references);
+        AddDotNetTools(orchestrator, references).AddToList(toolNames);
+        AddNodeJsTools(orchestrator, references).AddToList(toolNames);
+        AddPythonTools(orchestrator, references).AddToList(toolNames);
         Echo("=================================");
+
+        s_builder.ConfigureDashboard(toolNames);
 
         s_builder.ShowDashboardUrl(true).Build().Run();
     }
@@ -138,6 +138,9 @@ internal static class Program
                 .WithEnvironment("App__Authorization__Type", "AccessKey");
         }
 
+        orchestrator.WithUrl("https://github.com/microsoft/generative-pipelines?tab=readme-ov-file#documentation", "Docs");
+        orchestrator.WithUrl("https://github.com/microsoft/generative-pipelines", "GitHub");
+
         return orchestrator;
     }
 
@@ -173,7 +176,6 @@ internal static class Program
             if (s_config.UseRedisTools)
             {
                 redis = s_builder.AddRedis(RedisConnStringName)
-                    // .WithLifetime(ExternalContainersLifetime)
                     .WithPersistence(interval: TimeSpan.FromSeconds(45), keysChangedThreshold: 1)
                     .WithDataBindMount(Path.Join(s_localDockerData, "redis"))
                     .WithRedisCommander()
@@ -182,7 +184,6 @@ internal static class Program
             else
             {
                 redis = s_builder.AddRedis(RedisConnStringName)
-                    // .WithLifetime(ExternalContainersLifetime)
                     .WithPersistence(interval: TimeSpan.FromSeconds(45), keysChangedThreshold: 1)
                     .WithDataBindMount(Path.Join(s_localDockerData, "redis"));
             }
@@ -261,7 +262,6 @@ internal static class Program
             // qdrant = s_builder.AddQdrant(QdrantConnStringName, apiKey: customSecret)
 
             qdrant = s_builder.AddQdrant(QdrantConnStringName, apiKey: apiKey)
-                // .WithLifetime(ExternalContainersLifetime)
                 .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
         }
 
@@ -284,7 +284,7 @@ internal static class Program
 
             postgres = s_builder.AddPostgres(PostgresConnStringName, userName: username, password: password)
                 .WithImage(image: s_config.PostgresContainerImage, tag: s_config.PostgresContainerImageTag)
-                // .WithLifetime(ExternalContainersLifetime)
+                .WithPgAdmin()
                 .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
         }
 
@@ -300,17 +300,17 @@ internal static class Program
     /// <summary>
     /// Discover and add all .NET tools.
     /// </summary>
-    private static void AddDotNetTools(IResourceBuilder<ProjectResource> orchestrator,
+    private static List<string> AddDotNetTools(IResourceBuilder<ProjectResource> orchestrator,
         ICollection<IResourceBuilder<IResourceWithConnectionString>?> references)
     {
         try
         {
-            var dnProjects = ToolDiscovery.FindDotNetProjects(s_toolsPath);
+            var dnProjects = ToolDiscovery.FindDotNetProjects(s_toolsPath).ToList();
             foreach (var p in dnProjects)
             {
                 Echo($"- Adding {p.name} (.NET {p.projectFilePath})");
 
-                var resource = AddDotNetService(p.name, p.projectFilePath)
+                IResourceBuilder<ProjectResource> resource = AddDotNetService(p.name, p.projectFilePath)
                     .WithEnvironment(ToolNameEnvVar, p.name);
 
                 // Inject connection strings
@@ -318,24 +318,27 @@ internal static class Program
 
                 orchestrator.WithReference(resource);
             }
+
+            return dnProjects.Select(x => x.name).ToList();
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error discovering .NET projects: {ex.Message}");
             Environment.Exit(1);
+            return null!;
         }
     }
 
     /// <summary>
     /// Discover and add all Python tools.
     /// </summary>
-    private static void AddPythonTools(IResourceBuilder<ProjectResource> orchestrator,
+    private static List<string> AddPythonTools(IResourceBuilder<ProjectResource> orchestrator,
         ICollection<IResourceBuilder<IResourceWithConnectionString>?> references)
     {
         try
         {
-            var tsProjects = ToolDiscovery.FindPythonProjects(s_toolsPath);
-            foreach (var p in tsProjects)
+            var pyProjects = ToolDiscovery.FindPythonProjects(s_toolsPath).ToList();
+            foreach (var p in pyProjects)
             {
                 Echo($"- Adding {p.name} ({p.dirName} Python tool)");
 
@@ -347,24 +350,27 @@ internal static class Program
 
                 orchestrator.WithReference(resource);
             }
+
+            return pyProjects.Select(x => x.name).ToList();
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error discovering Python projects: {ex.Message}");
             Environment.Exit(1);
+            return null!;
         }
     }
 
     /// <summary>
     /// Discover and add all Node.js tools.
     /// </summary>
-    private static void AddNodeJsTools(IResourceBuilder<ProjectResource> orchestrator,
+    private static List<string> AddNodeJsTools(IResourceBuilder<ProjectResource> orchestrator,
         ICollection<IResourceBuilder<IResourceWithConnectionString>?> references)
     {
         try
         {
-            var tsProjects = ToolDiscovery.FindNodeJsProjects(s_toolsPath);
-            foreach (var p in tsProjects)
+            var nodeProjects = ToolDiscovery.FindNodeJsProjects(s_toolsPath).ToList();
+            foreach (var p in nodeProjects)
             {
                 Echo($"- Adding {p.name} ({p.dirName} Node.js tool)");
 
@@ -376,11 +382,14 @@ internal static class Program
 
                 orchestrator.WithReference(resource);
             }
+
+            return nodeProjects.Select(x => x.name).ToList();
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error discovering Node.js projects: {ex.Message}");
             Environment.Exit(1);
+            return null!;
         }
     }
 
