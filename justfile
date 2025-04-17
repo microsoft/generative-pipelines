@@ -33,7 +33,7 @@ build:
         bash .dev/build.sh; \
     fi
 
-# Start all the projects using Docker images
+# Build and start all the projects from source code using Aspire
 dev:
     @if [ "${OS:-}" = "Windows_NT" ]; then \
         pwsh -File .dev/start.ps1; \
@@ -41,7 +41,11 @@ dev:
         bash .dev/start.sh; \
     fi
 
-# Start all the projects from source code using Aspire
+# Start existing builds using Aspire
+aspire:
+    cd infra/dev-with-aspire && dotnet run
+
+# Start all the projects using Docker images
 start:
     @cd infra/dev-with-docker && docker compose up --pull always
 
