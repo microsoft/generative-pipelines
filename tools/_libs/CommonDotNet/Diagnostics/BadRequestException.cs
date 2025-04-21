@@ -1,14 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace CommonDotNet.Models;
+using CommonDotNet.Models;
 
-public class ConfigurationException : AppException
+namespace CommonDotNet.Diagnostics;
+
+public class BadRequestException : AppException
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AppException"/> class with a default message.
     /// </summary>
     /// <param name="isTransient">Optional parameter to indicate if the error is temporary and might disappear by retrying.</param>
-    public ConfigurationException(bool? isTransient = null)
+    public BadRequestException(bool? isTransient = null)
     {
         this.IsTransient = isTransient;
     }
@@ -18,7 +20,7 @@ public class ConfigurationException : AppException
     /// </summary>
     /// <param name="message">A string that describes the error.</param>
     /// <param name="isTransient">Optional parameter to indicate if the error is temporary and might disappear by retrying.</param>
-    public ConfigurationException(string? message, bool? isTransient = null) : base(message)
+    public BadRequestException(string? message, bool? isTransient = null) : base(message)
     {
         this.IsTransient = isTransient;
     }
@@ -29,7 +31,7 @@ public class ConfigurationException : AppException
     /// <param name="message">A string that describes the error.</param>
     /// <param name="innerException">The exception that is the cause of the current exception.</param>
     /// <param name="isTransient">Optional parameter to indicate if the error is temporary and might disappear by retrying.</param>
-    public ConfigurationException(string? message, Exception? innerException, bool? isTransient = null) : base(message, innerException)
+    public BadRequestException(string? message, Exception? innerException, bool? isTransient = null) : base(message, innerException)
     {
         this.IsTransient = isTransient;
     }

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using CommonDotNet.Models;
 using EmbeddingGenerator.Embeddings;
 using EmbeddingGenerator.Models;
 using Microsoft.Extensions.Logging.Abstractions;

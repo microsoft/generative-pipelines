@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using CommonDotNet.Models;
 
-namespace EmbeddingGenerator.Models;
+namespace EmbeddingGenerator.Functions;
 
-internal class EmbeddingRequest : IValidatable<EmbeddingRequest>
+internal class EmbeddingRequest : IValidatableObject
 {
     [JsonPropertyName("modelId")]
     [JsonPropertyOrder(1)]
@@ -44,34 +44,24 @@ internal class EmbeddingRequest : IValidatable<EmbeddingRequest>
         return this;
     }
 
-    public bool IsValid(out string errMsg)
+    /// <inherit />
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        errMsg = "The request is not valid";
+        this.FixState();
+
         if (string.IsNullOrWhiteSpace(this.ModelId))
         {
-            errMsg = "The modelId is required, the value is empty";
-            return false;
+            yield return new ValidationResult("The modelId is required, the value is empty", [nameof(this.ModelId)]);
         }
 
         if ((this.Inputs == null || this.Inputs.Count == 0) && string.IsNullOrEmpty(this.Input))
         {
-            errMsg = $"Both {nameof(this.Input)} and {nameof(this.Inputs)} are empty";
-            return false;
+            yield return new ValidationResult($"Both {nameof(this.Input)} and {nameof(this.Inputs)} are empty", [nameof(this.Input), nameof(this.Inputs)]);
         }
 
         if (this.Inputs?.Count > 0 && !string.IsNullOrEmpty(this.Input))
         {
-            errMsg = $"Both {nameof(this.Input)} and {nameof(this.Inputs)} are provided, only one is allowed, specifying either a single value or a list of values";
-            return false;
+            yield return new ValidationResult($"Both {nameof(this.Input)} and {nameof(this.Inputs)} are provided, only one is allowed, specifying either a single value or a list of values", [nameof(this.Input), nameof(this.Inputs)]);
         }
-
-        return true;
-    }
-
-    public EmbeddingRequest Validate()
-    {
-        if (!this.FixState().IsValid(out var errMsg)) { throw new ValidationException(errMsg); }
-
-        return this;
     }
 }

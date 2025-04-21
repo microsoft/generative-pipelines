@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using CommonDotNet.Models;
 
-namespace EmbeddingGenerator.Models;
+namespace EmbeddingGenerator.Functions;
 
-internal sealed class CustomEmbeddingRequest : EmbeddingRequest, IValidatable<CustomEmbeddingRequest>
+internal sealed class CustomEmbeddingRequest : EmbeddingRequest, IValidatableObject
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum AuthTypes
@@ -39,7 +39,6 @@ internal sealed class CustomEmbeddingRequest : EmbeddingRequest, IValidatable<Cu
     [JsonPropertyName("supportsCustomDimensions")]
     public bool SupportsCustomDimensions { get; set; } = false;
 
-    /// <inherit />
     public new CustomEmbeddingRequest FixState()
     {
         base.FixState();
@@ -55,31 +54,23 @@ internal sealed class CustomEmbeddingRequest : EmbeddingRequest, IValidatable<Cu
     }
 
     /// <inherit />
-    public new bool IsValid(out string errMsg)
+    public new IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (!base.IsValid(out errMsg)) { return false; }
+        this.FixState();
+
+        foreach (var x in base.Validate(validationContext))
+        {
+            yield return x;
+        }
 
         if (!Uri.TryCreate(this.Endpoint, UriKind.Absolute, out _))
         {
-            errMsg = $"The endpoint '{this.Endpoint}' is not valid";
-            return false;
+            yield return new ValidationResult($"The endpoint '{this.Endpoint}' is not valid", [nameof(this.Endpoint)]);
         }
 
         if (this.Auth == AuthTypes.APIKey && string.IsNullOrWhiteSpace(this.ApiKey))
         {
-            errMsg = "The API key is required, the value is empty";
-            return false;
+            yield return new ValidationResult("The API key is required, the value is empty", [nameof(this.ApiKey)]);
         }
-
-        return true;
-    }
-
-    /// <inherit />
-    public new CustomEmbeddingRequest Validate()
-    {
-        base.Validate();
-        if (!this.FixState().IsValid(out var errMsg)) { throw new ValidationException(errMsg); }
-
-        return this;
     }
 }

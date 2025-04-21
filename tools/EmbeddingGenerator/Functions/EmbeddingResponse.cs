@@ -2,7 +2,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace EmbeddingGenerator.Models;
+namespace EmbeddingGenerator.Functions;
 
 public class EmbeddingResponse
 {

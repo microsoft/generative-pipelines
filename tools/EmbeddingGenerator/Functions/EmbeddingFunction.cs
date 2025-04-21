@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using CommonDotNet.Models;
 using EmbeddingGenerator.Embeddings;
 using EmbeddingGenerator.Models;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -29,6 +30,8 @@ internal sealed class EmbeddingFunction
         {
             return Results.BadRequest($"Embedding model {req.ModelId} is not available. Check /models for the list of available models.");
         }
+
+        model.EnsureValid();
 
         EmbeddingClient client;
         AIModelConfig modelSettings;

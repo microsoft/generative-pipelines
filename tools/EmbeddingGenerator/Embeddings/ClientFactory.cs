@@ -4,7 +4,7 @@ using System.ClientModel;
 using Azure.AI.OpenAI;
 using Azure.Identity;
 using CommonDotNet.Diagnostics;
-using CommonDotNet.Models;
+using EmbeddingGenerator.Functions;
 using EmbeddingGenerator.Models;
 using OpenAI;
 using OpenAI.Embeddings;

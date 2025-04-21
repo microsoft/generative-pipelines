@@ -1,19 +1,15 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+using System.ComponentModel.DataAnnotations;
+using CommonDotNet.Models;
+
 namespace EmbeddingGenerator.Models;
 #pragma warning disable CA2201
 
-internal sealed class AppConfig
+internal sealed class AppConfig : IValidatableObject
 {
     public OpenAIModelProviderConfig OpenAI { get; set; } = new();
     public AzureAIModelProviderConfig AzureAI { get; set; } = new();
-
-    public AppConfig Validate()
-    {
-        this.OpenAI.Validate();
-        this.AzureAI.Validate();
-        return this;
-    }
 
     public Dictionary<string, ModelInfo> GetModelsInfo()
     {
@@ -37,6 +33,8 @@ internal sealed class AppConfig
                 modelInfo.Endpoint = model.Value.Endpoint;
             }
 
+            modelInfo.EnsureValid();
+
             list[model.Key] = modelInfo;
         }
 
@@ -55,9 +53,16 @@ internal sealed class AppConfig
                 SupportsCustomDimensions = model.Value.SupportsCustomDimensions
             };
 
+            modelInfo.EnsureValid();
+
             list[model.Key] = modelInfo;
         }
 
         return list;
+    }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        return this.OpenAI.Validate(null!).Concat(this.AzureAI.Validate(null!));
     }
 }

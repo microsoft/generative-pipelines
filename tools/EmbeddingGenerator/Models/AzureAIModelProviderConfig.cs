@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace EmbeddingGenerator.Models;
 
-internal sealed class AzureAIModelProviderConfig
+internal sealed class AzureAIModelProviderConfig : IValidatableObject
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum AzureAuthTypes
@@ -17,13 +18,6 @@ internal sealed class AzureAIModelProviderConfig
     public AzureAuthTypes Auth { get; set; } = AzureAuthTypes.AzureIdentity; // Optional override
     public string ApiKey { get; set; } = string.Empty; // Optional override
     public Dictionary<string, AzureAIDeploymentConfig> Deployments { get; set; } = new();
-
-    public AzureAIModelProviderConfig Validate()
-    {
-        foreach (var model in this.Deployments) { model.Value.Validate(); }
-
-        return this;
-    }
 
     public AzureAIDeploymentConfig GetModelById(string modelId)
     {
@@ -60,5 +54,10 @@ internal sealed class AzureAIModelProviderConfig
         }
 
         throw new ApplicationException($"Azure deployment {modelId} not found");
+    }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        return this.Deployments.SelectMany(x => x.Value.Validate(null!));
     }
 }
