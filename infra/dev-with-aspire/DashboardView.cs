@@ -1,8 +1,5 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Aspire.Hosting.Postgres;
-using Aspire.Hosting.Redis;
-
 namespace Aspire.AppHost;
 
 internal static class DashboardView
@@ -10,14 +7,15 @@ internal static class DashboardView
     private const string Orchestrator = "orchestrator";
     private const string Qdrant = "qdrantstorage";
     private const string Redis = "redisstorage";
-    private const string RedisCommander = "redisstorage-commander";
-    private const string RedisInsights = "redisstorage-insight";
+    private const string RedisCommander = Redis + "-commander";
+    private const string RedisInsight = Redis + "-insight";
     private const string Postgres = "postgresstorage";
-    private const string PgAdmin = "postgresstorage-pgadmin";
+    private const string PgAdmin = Postgres + "-pgadmin";
+    private const string Ollama = "ollama";
+    private const string OllamaUi = Ollama + "-openwebui";
 
     public static void ConfigureDashboard(this IDistributedApplicationBuilder appBuilder, List<string> toolNames)
     {
-        var tools = new HashSet<string>(toolNames);
         var builders = new Dictionary<string, IResourceBuilder<IResource>>();
         var resources = new Dictionary<string, IResource>();
 
@@ -27,12 +25,24 @@ internal static class DashboardView
             builders[resource.Name] = appBuilder.CreateResourceBuilder(resource);
         }
 
+        ConfigureOrchestrator(resources, builders, appBuilder, toolNames);
+        ConfigureQdrant(resources, builders);
+        ConfigurePostgres(resources, builders);
+        ConfigureRedis(resources, builders);
+        ConfigureOllama(resources, builders);
+    }
+
+    private static void ConfigureOrchestrator(
+        Dictionary<string, IResource> resources,
+        Dictionary<string, IResourceBuilder<IResource>> builders,
+        IDistributedApplicationBuilder appBuilder,
+        List<string> toolNames)
+    {
+        var tools = new HashSet<string>(toolNames);
+
         resources.TryGetValue(Orchestrator, out IResource? orchestrator);
         resources.TryGetValue(Postgres, out IResource? postgres);
-        resources.TryGetValue(PgAdmin, out IResource? pgAdmin);
         resources.TryGetValue(Redis, out IResource? redis);
-        resources.TryGetValue(RedisCommander, out IResource? redisCommander);
-        resources.TryGetValue(RedisInsights, out IResource? redisInsights);
 
         foreach (var resource in appBuilder.Resources)
         {
@@ -55,20 +65,13 @@ internal static class DashboardView
                     })
                     .WithUrlForEndpoint("https", url => { url.Url = ""; });
             }
-
-            // Link Postgres tools to Postgres
-            if (postgres != null && resource is PgAdminContainerResource or PgWebContainerResource)
-            {
-                resBuilder.WithParentRelationship(postgres);
-            }
-
-            // Link Redis tools to Redis
-            if (redis != null && resource is RedisCommanderResource or RedisInsightResource)
-            {
-                resBuilder.WithParentRelationship(redis);
-            }
         }
+    }
 
+    private static void ConfigureQdrant(
+        Dictionary<string, IResource> resources,
+        Dictionary<string, IResourceBuilder<IResource>> builders)
+    {
         // Qdrant dashboard, remove other URLs
         if (resources.ContainsKey(Qdrant))
         {
@@ -81,74 +84,136 @@ internal static class DashboardView
                     url.Url = url.Url.TrimEnd('/') + "/dashboard";
                 });
         }
+    }
 
-        // Postgres pgAdmin link
+    private static void ConfigurePostgres(
+        Dictionary<string, IResource> resources,
+        Dictionary<string, IResourceBuilder<IResource>> builders)
+    {
+        resources.TryGetValue(Postgres, out IResource? postgres);
+        resources.TryGetValue(PgAdmin, out IResource? pgAdmin);
+
         if (postgres != null && pgAdmin != null)
         {
+            builders[PgAdmin].WithParentRelationship(postgres);
+        }
+
+        // Postgres pgAdmin link
+        if (postgres != null && pgAdmin is IResourceWithEndpoints pgAdminWithEndpoints)
+        {
             builders[Postgres]
-                // Hide TCP endpoint
+                // Hide default endpoint
                 .WithUrlForEndpoint("tcp", url => { url.Url = ""; })
                 // Add a link to pgAdmin
                 .WithUrls(pg =>
                 {
-                    if (pgAdmin is IResourceWithEndpoints pgAdminWithEndpoints)
+                    // Add a link to pgAdmin
+                    pg.Urls.Add(new ResourceUrlAnnotation
                     {
-                        // Add a link to pgAdmin
-                        pg.Urls.Add(new ResourceUrlAnnotation
-                        {
-                            DisplayOrder = 100,
-                            DisplayText = "pgAdmin",
-                            Url = pgAdminWithEndpoints.GetEndpoint("http").Url
-                        });
+                        DisplayOrder = 100,
+                        DisplayText = "pgAdmin",
+                        Url = pgAdminWithEndpoints.GetEndpoint("http").Url
+                    });
 
-                        // Hide pgAdmin resource endpoint
-                        pgAdminWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => pgAdminWithEndpoints.Annotations.Remove(a));
-                    }
-                });
-        }
-
-        // Redis links
-        if (redis != null && redisCommander != null)
-        {
-            builders[Redis]
-                // Hide TCP endpoint
-                .WithUrlForEndpoint("tcp", url => { url.Url = ""; })
-                // Add a link to Commander
-                .WithUrls(r =>
-                {
-                    if (redisCommander is IResourceWithEndpoints redisCommanderWithEndpoints)
-                    {
-                        // Add a link to Commander
-                        r.Urls.Add(new ResourceUrlAnnotation
-                        {
-                            DisplayOrder = 100,
-                            DisplayText = "Commander",
-                            Url = redisCommanderWithEndpoints.GetEndpoint("http").Url
-                        });
-
-                        // Hide Commander resource endpoint
-                        redisCommanderWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => redisCommanderWithEndpoints.Annotations.Remove(a));
-                    }
-
-                    if (redisInsights is IResourceWithEndpoints redisInsightsWithEndpoints)
-                    {
-                        // Add a link to Insights
-                        r.Urls.Add(new ResourceUrlAnnotation
-                        {
-                            DisplayOrder = 200,
-                            DisplayText = "Insight",
-                            Url = redisInsightsWithEndpoints.GetEndpoint("http").Url
-                        });
-
-                        // Hide Insights resource endpoint
-                        redisInsightsWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => redisInsightsWithEndpoints.Annotations.Remove(a));
-                    }
+                    // Hide pgAdmin resource endpoint
+                    pgAdminWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => pgAdminWithEndpoints.Annotations.Remove(a));
                 });
         }
     }
 
-    public static void AddToList(this List<string> list, List<string> targetList)
+    private static void ConfigureRedis(
+        Dictionary<string, IResource> resources,
+        Dictionary<string, IResourceBuilder<IResource>> builders)
     {
-        targetList.AddRange(list);
+        resources.TryGetValue(Redis, out IResource? redis);
+        resources.TryGetValue(RedisCommander, out IResource? redisCommander);
+        resources.TryGetValue(RedisInsight, out IResource? redisInsight);
+
+        if (redis != null && redisCommander != null)
+        {
+            builders[RedisCommander].WithParentRelationship(redis);
+        }
+
+        if (redis != null && redisInsight != null)
+        {
+            builders[RedisInsight].WithParentRelationship(redis);
+        }
+
+        // Redis links
+        if (redis != null && redisCommander is IResourceWithEndpoints redisCommanderWithEndpoints)
+        {
+            builders[Redis]
+                // Hide default endpoint
+                .WithUrlForEndpoint("tcp", url => { url.Url = ""; })
+                // Add a link to Commander
+                .WithUrls(r =>
+                {
+                    // Add a link to Commander
+                    r.Urls.Add(new ResourceUrlAnnotation
+                    {
+                        DisplayOrder = 100,
+                        DisplayText = "Commander",
+                        Url = redisCommanderWithEndpoints.GetEndpoint("http").Url
+                    });
+
+                    // Hide Commander resource endpoint
+                    redisCommanderWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => redisCommanderWithEndpoints.Annotations.Remove(a));
+                });
+        }
+
+        if (redis != null && redisInsight is IResourceWithEndpoints redisInsightWithEndpoints)
+        {
+            builders[Redis]
+                // Hide default endpoint
+                .WithUrlForEndpoint("tcp", url => { url.Url = ""; })
+                // Add a link to Commander
+                .WithUrls(r =>
+                {
+                    // Add a link to Insight
+                    r.Urls.Add(new ResourceUrlAnnotation
+                    {
+                        DisplayOrder = 200,
+                        DisplayText = "Insight",
+                        Url = redisInsightWithEndpoints.GetEndpoint("http").Url
+                    });
+
+                    // Hide Insight resource endpoint
+                    redisInsightWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => redisInsightWithEndpoints.Annotations.Remove(a));
+                });
+        }
+    }
+
+    private static void ConfigureOllama(
+        Dictionary<string, IResource> resources,
+        Dictionary<string, IResourceBuilder<IResource>> builders)
+    {
+        resources.TryGetValue(Ollama, out IResource? ollama);
+        resources.TryGetValue(OllamaUi, out IResource? ollamaUi);
+
+        if (ollama != null && ollamaUi != null)
+        {
+            builders[OllamaUi].WithParentRelationship(ollama);
+        }
+
+        if (ollama != null && ollamaUi is IResourceWithEndpoints ollamaUiWithEndpoints)
+        {
+            builders[Ollama]
+                // Hide default endpoint
+                .WithUrlForEndpoint("http", url => { url.Url = ""; })
+                // Add a link to pgAdmin
+                .WithUrls(pg =>
+                {
+                    // Add a link to pgAdmin
+                    pg.Urls.Add(new ResourceUrlAnnotation
+                    {
+                        DisplayOrder = 100,
+                        DisplayText = "Web UI",
+                        Url = ollamaUiWithEndpoints.GetEndpoint("http").Url
+                    });
+
+                    // Hide pgAdmin resource endpoint
+                    ollamaUiWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => ollamaUiWithEndpoints.Annotations.Remove(a));
+                });
+        }
     }
 }

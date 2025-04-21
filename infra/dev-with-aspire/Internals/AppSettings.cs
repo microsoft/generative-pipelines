@@ -47,4 +47,28 @@ public class AppSettings
     /// </summary>
     [JsonPropertyName("PostgresContainerImageTag")]
     public string PostgresContainerImageTag { get; set; } = "pg17";
+
+    /// <summary>
+    /// The Docker image to use for Ollama
+    /// </summary>
+    [JsonPropertyName("OllamaContainerImage")]
+    public string OllamaContainerImage { get; set; } = "ollama/ollama";
+
+    /// <summary>
+    /// Tag for the Docker image to use for Ollama
+    /// </summary>
+    [JsonPropertyName("OllamaContainerTag")]
+    public string OllamaContainerTag { get; set; } = "latest";
+
+    /// <summary>
+    /// The Docker image to use for Ollama UI
+    /// </summary>
+    [JsonPropertyName("OllamaWebUiContainerImage")]
+    public string OllamaWebUiContainerImage { get; set; } = "open-webui/open-webui";
+
+    /// <summary>
+    /// Tag for the Docker image to use for Ollama UI
+    /// </summary>
+    [JsonPropertyName("OllamaWebUiContainerTag")]
+    public string OllamaWebUiContainerTag { get; set; } = "0.5.20";
 }

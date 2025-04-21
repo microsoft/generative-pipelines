@@ -64,8 +64,9 @@ internal static class Program
         var qdrant = AddQdrantResources(); // Vector storage
         var azSearch = AddAzureAiSearch(); // Vector storage with semantic ranking
         var orchestrator = AddOrchestrator(azureStorage.blobs, azureStorage.queues, redis); // Orchestrator
+        var ollama = AddOllama();
 
-        List<IResourceBuilder<IResourceWithConnectionString>?> references = [redis, azSearch, postgres, qdrant, azureStorage.blobs, azureStorage.queues];
+        List<IResourceBuilder<IResourceWithConnectionString>?> references = [redis, azSearch, postgres, qdrant, azureStorage.blobs, azureStorage.queues, ollama];
 
         // Tools
         var toolNames = new List<string>();
@@ -142,6 +143,21 @@ internal static class Program
         orchestrator.WithUrl("https://github.com/microsoft/generative-pipelines", "GitHub");
 
         return orchestrator;
+    }
+
+    private static IResourceBuilder<OllamaResource> AddOllama()
+    {
+        IResourceBuilder<OllamaResource> ollama = s_builder.AddOllama("ollama")
+            .WithImage(image: s_config.OllamaContainerImage, tag: s_config.OllamaContainerTag)
+            .WithDataVolume();
+        // .WithOpenWebUI(configureContainer: x =>
+        // {
+        //     x.WithImage(image: s_config.OllamaWebUiContainerImage, tag: s_config.OllamaWebUiContainerTag);
+        // });
+
+        ollama.AddModel("phi4mini", modelName: "phi4-mini");
+
+        return ollama;
     }
 
     private static (IResourceBuilder<AzureBlobStorageResource> blobs, IResourceBuilder<AzureQueueStorageResource> queues) AddAzureStorage()

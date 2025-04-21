@@ -31,6 +31,11 @@ public static class Dashboard
         return builder;
     }
 
+    public static void AddToList(this List<string> list, List<string> targetList)
+    {
+        targetList.AddRange(list);
+    }
+
     private static string GetUrl(IDistributedApplicationBuilder builder)
     {
         string token = builder.Configuration["AppHost:BrowserToken"] ?? string.Empty;
