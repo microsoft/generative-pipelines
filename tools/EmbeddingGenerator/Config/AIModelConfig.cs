@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace EmbeddingGenerator.Models;
+namespace EmbeddingGenerator.Config;
 
 internal abstract class AIModelConfig
 {

@@ -2,18 +2,12 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using EmbeddingGenerator.Models;
 
 namespace EmbeddingGenerator.Functions;
 
 internal sealed class CustomEmbeddingRequest : EmbeddingRequest, IValidatableObject
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum AuthTypes
-    {
-        AzureIdentity,
-        APIKey
-    }
-
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ModelProviders
     {
@@ -28,7 +22,7 @@ internal sealed class CustomEmbeddingRequest : EmbeddingRequest, IValidatableObj
     public string Endpoint { get; set; } = string.Empty;
 
     [JsonPropertyName("auth")]
-    public AuthTypes Auth { get; set; } = AuthTypes.AzureIdentity;
+    public AuthTypes Auth { get; set; } = AuthTypes.DefaultAzureCredential;
 
     [JsonPropertyName("apiKey")]
     public string ApiKey { get; set; } = string.Empty;
@@ -63,12 +57,17 @@ internal sealed class CustomEmbeddingRequest : EmbeddingRequest, IValidatableObj
             yield return x;
         }
 
-        if (!Uri.TryCreate(this.Endpoint, UriKind.Absolute, out _))
+        if (!Enum.IsDefined(typeof(AuthTypes), this.Auth))
+        {
+            yield return new ValidationResult($"The auth type '{this.Auth}' is not valid", [nameof(this.Auth)]);
+        }
+
+        if (this.Provider == ModelProviders.AzureAI && !Uri.TryCreate(this.Endpoint, UriKind.Absolute, out _))
         {
             yield return new ValidationResult($"The endpoint '{this.Endpoint}' is not valid", [nameof(this.Endpoint)]);
         }
 
-        if (this.Auth == AuthTypes.APIKey && string.IsNullOrWhiteSpace(this.ApiKey))
+        if (this.Auth == AuthTypes.ApiKey && string.IsNullOrWhiteSpace(this.ApiKey))
         {
             yield return new ValidationResult("The API key is required, the value is empty", [nameof(this.ApiKey)]);
         }

@@ -1,0 +1,33 @@
+{
+  "App": {
+    "OpenAI": {
+      "ApiKey": "sk-proj-..."
+    },
+    "AzureAI": {
+      "Auth": "AzureCliCredential",
+      "Deployments": {
+        "model1": {
+          "Endpoint": "https://.......cognitiveservices.azure.com/",
+          "Deployment": "text-embedding-3-small",
+          "MaxDimensions": 1536,
+          "SupportsCustomDimensions": true,
+          "MaxBatchSize": 10,
+        },
+        "model1-westus": {
+          "Endpoint": "https://.......cognitiveservices.azure.com/",
+          "Deployment": "text-embedding-3-small",
+          "MaxDimensions": 1536,
+          "SupportsCustomDimensions": true,
+          "MaxBatchSize": 10,
+        },
+        "model2": {
+          "Endpoint": "https://.......cognitiveservices.azure.com/",
+          "Deployment": "text-embedding-ada-002",
+          "MaxDimensions": 1536,
+          "SupportsCustomDimensions": false,
+          "MaxBatchSize": 10,
+        },
+      }
+    }
+  }
+}

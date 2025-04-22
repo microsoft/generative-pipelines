@@ -3,7 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using CommonDotNet.Models;
 
-namespace EmbeddingGenerator.Models;
+namespace EmbeddingGenerator.Config;
 #pragma warning disable CA2201
 
 internal sealed class AppConfig : IValidatableObject
@@ -25,7 +25,7 @@ internal sealed class AppConfig : IValidatableObject
                 Provider = ModelInfo.ModelProviders.OpenAI,
                 Model = model.Value.Model,
                 MaxDimensions = model.Value.MaxDimensions,
-                SupportsCustomDimensions = model.Value.SupportsCustomDimensions
+                SupportsCustomDimensions = model.Value.SupportsCustomDimensions,
             };
 
             if (!string.IsNullOrWhiteSpace(model.Value.Endpoint))
@@ -35,7 +35,7 @@ internal sealed class AppConfig : IValidatableObject
 
             modelInfo.EnsureValid();
 
-            list[model.Key] = modelInfo;
+            list[$"{model.Key} ({modelInfo.Provider:G})"] = modelInfo;
         }
 
         // Azure AI models
@@ -48,14 +48,15 @@ internal sealed class AppConfig : IValidatableObject
             {
                 ModelId = model.Key,
                 Provider = ModelInfo.ModelProviders.AzureAI,
-                Model = model.Value.Deployment,
+                Deployment = model.Value.Deployment,
+                Endpoint = model.Value.Endpoint,
                 MaxDimensions = model.Value.MaxDimensions,
-                SupportsCustomDimensions = model.Value.SupportsCustomDimensions
+                SupportsCustomDimensions = model.Value.SupportsCustomDimensions,
             };
 
             modelInfo.EnsureValid();
 
-            list[model.Key] = modelInfo;
+            list[$"{model.Key} ({modelInfo.Provider:G})"] = modelInfo;
         }
 
         return list;

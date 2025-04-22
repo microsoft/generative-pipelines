@@ -5,8 +5,8 @@ using CommonDotNet.Http;
 using CommonDotNet.Models;
 using CommonDotNet.OpenApi;
 using CommonDotNet.ServiceDiscovery;
+using EmbeddingGenerator.Config;
 using EmbeddingGenerator.Functions;
-using EmbeddingGenerator.Models;
 
 namespace EmbeddingGenerator;
 

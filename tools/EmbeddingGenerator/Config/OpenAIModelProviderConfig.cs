@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace EmbeddingGenerator.Models;
+namespace EmbeddingGenerator.Config;
 
 internal sealed class OpenAIModelProviderConfig : IValidatableObject
 {

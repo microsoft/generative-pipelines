@@ -2,14 +2,13 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace EmbeddingGenerator.Models;
+namespace EmbeddingGenerator.Config;
 
-internal sealed class AzureAIDeploymentConfig : AIModelConfig, IValidatableObject
+internal sealed class OpenAIModelConfig : AIModelConfig, IValidatableObject
 {
     public string? Endpoint { get; set; } // Optional override
-    public AzureAIModelProviderConfig.AzureAuthTypes? Auth { get; set; } // Optional override
     public string? ApiKey { get; set; } // Optional override
-    public string Deployment { get; set; } = string.Empty;
+    public string Model { get; set; } = string.Empty;
 
     public void FixState()
     {
@@ -23,9 +22,9 @@ internal sealed class AzureAIDeploymentConfig : AIModelConfig, IValidatableObjec
     {
         this.FixState();
 
-        if (string.IsNullOrWhiteSpace(this.Deployment))
+        if (string.IsNullOrWhiteSpace(this.Model))
         {
-            yield return new ValidationResult("The Azure deployment name is required, the value is empty", [nameof(this.Deployment)]);
+            yield return new ValidationResult("The model name is required, the value is empty", [nameof(this.Model)]);
         }
 
         if (this.MaxDimensions < 1)
