@@ -7,9 +7,9 @@ namespace Orchestrator.Http;
 
 internal sealed class HttpAuthEndpointFilter : IEndpointFilter
 {
-    private readonly AuthorizationConfig _config;
+    private readonly WebServiceAuthConfig _config;
 
-    public HttpAuthEndpointFilter(AuthorizationConfig config)
+    public HttpAuthEndpointFilter(WebServiceAuthConfig config)
     {
         config.Validate();
         this._config = config;
@@ -20,7 +20,7 @@ internal sealed class HttpAuthEndpointFilter : IEndpointFilter
         EndpointFilterDelegate next)
     {
         // Check if the Authorization header is present and contains a valid access key
-        if (this._config.Type == AuthorizationConfig.AuthType.AccessKey)
+        if (this._config.Type == WebServiceAuthConfig.WebServiceAuthType.AccessKey)
         {
             if (!context.HttpContext.Request.Headers.TryGetValue(this._config.AuthorizationHeader, out StringValues apiKey))
             {

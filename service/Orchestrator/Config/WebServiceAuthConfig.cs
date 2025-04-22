@@ -4,27 +4,27 @@ using System.Text.Json.Serialization;
 
 namespace Orchestrator.Config;
 
-internal sealed class AuthorizationConfig
+internal sealed class WebServiceAuthConfig
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum AuthType
+    public enum WebServiceAuthType
     {
         None,
         AccessKey,
     }
 
-    public AuthType Type { get; set; } = AuthType.None;
+    public WebServiceAuthType Type { get; set; } = WebServiceAuthType.None;
     public string AuthorizationHeader { get; set; } = string.Empty;
     public string AccessKey1 { get; set; } = string.Empty;
     public string AccessKey2 { get; set; } = string.Empty;
 
-    public AuthorizationConfig Validate()
+    public WebServiceAuthConfig Validate()
     {
-        if (this.Type == AuthType.None) { return this; }
+        if (this.Type == WebServiceAuthType.None) { return this; }
 
         this.AuthorizationHeader = string.IsNullOrWhiteSpace(this.AuthorizationHeader) ? "Authorization" : this.AuthorizationHeader.Trim();
 
-        if (this.Type == AuthType.AccessKey)
+        if (this.Type == WebServiceAuthType.AccessKey)
         {
             const int MinLen = 16;
             char[] allowedSymbols = ['!', '$', '%', '(', ')', '*', '-', '.', ':', ';', '[', ']', '^', '_', '{', '|', '}', '~'];

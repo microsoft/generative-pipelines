@@ -52,44 +52,44 @@ public static partial class DependencyInjection
                 switch (azureBlobFileSystemConfig.Auth)
                 {
                     default:
-                    case AzureBlobFileSystemConfig.AuthTypes.Unknown:
-                    case AzureBlobFileSystemConfig.AuthTypes.ConnectionString:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.Unknown:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.ConnectionString:
                         // noop, use defaults
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.DefaultAzureCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.DefaultAzureCredential:
                         settings.Credential = new DefaultAzureCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.AzureCliCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.AzureCliCredential:
                         settings.Credential = new AzureCliCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.AzureDeveloperCliCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.AzureDeveloperCliCredential:
                         settings.Credential = new AzureDeveloperCliCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.AzurePowerShellCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.AzurePowerShellCredential:
                         settings.Credential = new AzurePowerShellCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.EnvironmentCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.EnvironmentCredential:
                         settings.Credential = new EnvironmentCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.InteractiveBrowserCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.InteractiveBrowserCredential:
                         settings.Credential = new InteractiveBrowserCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.ManagedIdentityCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.ManagedIdentityCredential:
                         settings.Credential = new ManagedIdentityCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.VisualStudioCodeCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.VisualStudioCodeCredential:
                         settings.Credential = new VisualStudioCodeCredential();
                         break;
 
-                    case AzureBlobFileSystemConfig.AuthTypes.VisualStudioCredential:
+                    case AzureBlobFileSystemConfig.AzureAuthTypes.VisualStudioCredential:
                         settings.Credential = new VisualStudioCredential();
                         break;
                 }
