@@ -35,7 +35,7 @@ internal sealed class AppConfig : IValidatableObject
 
             modelInfo.EnsureValid();
 
-            list[$"{model.Key} ({modelInfo.Provider:G})"] = modelInfo;
+            list[model.Key] = modelInfo;
         }
 
         // Azure AI models
@@ -56,7 +56,7 @@ internal sealed class AppConfig : IValidatableObject
 
             modelInfo.EnsureValid();
 
-            list[$"{model.Key} ({modelInfo.Provider:G})"] = modelInfo;
+            list[model.Key] = modelInfo;
         }
 
         return list;
@@ -64,6 +64,18 @@ internal sealed class AppConfig : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        return this.OpenAI.Validate(null!).Concat(this.AzureAI.Validate(null!));
+        foreach (var x in this.OpenAI.Validate(null!).Concat(this.AzureAI.Validate(null!)))
+        {
+            yield return x;
+        }
+
+        var modelIDs = new HashSet<string>();
+        foreach (var key in this.OpenAI.Models.Keys.Concat(this.AzureAI.Deployments.Keys))
+        {
+            if (!modelIDs.Add(key))
+            {
+                yield return new ValidationResult($"Duplicate Model ID found: {key}", [nameof(this.OpenAI.Models)]);
+            }
+        }
     }
 }

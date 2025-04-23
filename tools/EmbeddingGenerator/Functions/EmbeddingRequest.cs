@@ -25,13 +25,13 @@ internal class EmbeddingRequest : IValidatableObject
     [JsonPropertyOrder(13)]
     public int? Dimensions { get; set; }
 
-    [JsonPropertyName("cache")]
-    [JsonPropertyOrder(30)]
-    public bool Cache { get; set; } = true;
-
-    [JsonPropertyName("ignoreCache")]
-    [JsonPropertyOrder(31)]
-    public bool IgnoreCache { get; set; } = false;
+    // [JsonPropertyName("cache")]
+    // [JsonPropertyOrder(30)]
+    // public bool Cache { get; set; } = true;
+    //
+    // [JsonPropertyName("ignoreCache")]
+    // [JsonPropertyOrder(31)]
+    // public bool IgnoreCache { get; set; } = false;
 
     public EmbeddingRequest FixState()
     {

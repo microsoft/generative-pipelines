@@ -17,12 +17,12 @@ public sealed class EmbeddingGeneratorTests : BaseTestCase
     }
 
     [Fact]
-    public async Task OpenAIAda0002Test()
+    public async Task OpenAIVectorizationTest()
     {
         // Arrange
         var payload = new
         {
-            modelId = "openai-text-embedding-ada-002",
+            modelId = "text-embedding-ada-002",
             input = "some text",
         };
 
@@ -46,44 +46,14 @@ public sealed class EmbeddingGeneratorTests : BaseTestCase
     }
 
     [Fact]
-    public async Task AzureOpenAIAda0002Test()
+    public async Task CustomOpenAIVectorizationTest()
     {
         // Arrange
         var payload = new
         {
-            modelId = "text-embedding-3-small",
-            input = "some text",
-        };
-
-        // Act
-        var response = await this.EmbeddingGeneratorClient.PostAsJsonAsync("/vectorize", payload).ConfigureAwait(false);
-        string jsonResponse = await this.LogResponseAsync(response).ConfigureAwait(false);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        jsonResponse.Should().BeCorrectJson();
-        var json = jsonResponse.AsJson();
-        json.Should().HaveProperty("promptTokens")
-            .Which.Should().BeOfKind(JsonValueKind.Number)
-            .And.BeIntegerMatching(x => x == 2);
-        json.Should().HaveProperty("totalTokens")
-            .Which.Should().BeOfKind(JsonValueKind.Number)
-            .And.BeIntegerMatching(x => x == 2);
-        json.Should().HaveProperty("embedding")
-            .Which.Should().BeOfKind(JsonValueKind.Array);
-    }
-
-    [Fact]
-    public async Task CustomAzureVectorizationTest()
-    {
-        // Arrange
-        var payload = new
-        {
-            provider = "AzureAI",
-            auth = $"{this._config["AzureAIEmbeddingAuth"]}",
-            endpoint = $"{this._config["AzureAIEndpoint"]}",
-            modelId = $"{this._config["AzureAIEmbeddingModel"]}",
+            provider = "OpenAI",
+            apiKey = $"{this._config["OpenAIEmbeddingAuth"]}",
+            model = "text-embedding-3-small",
             maxDimensions = 1536,
             supportsCustomDimensions = true,
             dimensions = 5,
@@ -110,14 +80,44 @@ public sealed class EmbeddingGeneratorTests : BaseTestCase
     }
 
     [Fact]
-    public async Task CustomOpenAIVectorizationTest()
+    public async Task AzureAIVectorizationTest()
     {
         // Arrange
         var payload = new
         {
-            provider = "OpenAI",
-            apiKey = $"{this._config["OpenAIEmbeddingAuth"]}",
-            modelId = $"{this._config["OpenAIEmbeddingModel"]}",
+            modelId = $"{this._config["AzureAIEmbeddingModelId"]}",
+            input = "some text",
+        };
+
+        // Act
+        var response = await this.EmbeddingGeneratorClient.PostAsJsonAsync("/vectorize", payload).ConfigureAwait(false);
+        string jsonResponse = await this.LogResponseAsync(response).ConfigureAwait(false);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        jsonResponse.Should().BeCorrectJson();
+        var json = jsonResponse.AsJson();
+        json.Should().HaveProperty("promptTokens")
+            .Which.Should().BeOfKind(JsonValueKind.Number)
+            .And.BeIntegerMatching(x => x == 2);
+        json.Should().HaveProperty("totalTokens")
+            .Which.Should().BeOfKind(JsonValueKind.Number)
+            .And.BeIntegerMatching(x => x == 2);
+        json.Should().HaveProperty("embedding")
+            .Which.Should().BeOfKind(JsonValueKind.Array);
+    }
+
+    [Fact]
+    public async Task CustomAzureAiVectorizationTest()
+    {
+        // Arrange
+        var payload = new
+        {
+            provider = "AzureAI",
+            auth = $"{this._config["AzureAIEmbeddingAuth"]}",
+            endpoint = $"{this._config["AzureAIEndpoint"]}",
+            deployment = $"{this._config["AzureAIEmbeddingDeployment"]}",
             maxDimensions = 1536,
             supportsCustomDimensions = true,
             dimensions = 5,
