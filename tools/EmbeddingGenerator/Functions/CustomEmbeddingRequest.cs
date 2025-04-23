@@ -62,7 +62,7 @@ internal sealed class CustomEmbeddingRequest : IValidatableObject
     [JsonPropertyName("supportsCustomDimensions")]
     public bool SupportsCustomDimensions { get; set; } = false;
 
-    public new CustomEmbeddingRequest FixState()
+    public CustomEmbeddingRequest FixState()
     {
         if (string.IsNullOrWhiteSpace(this.ApiKey)) { this.ApiKey = string.Empty; }
 
@@ -76,7 +76,7 @@ internal sealed class CustomEmbeddingRequest : IValidatableObject
     }
 
     /// <inherit />
-    public new IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         this.FixState();
 

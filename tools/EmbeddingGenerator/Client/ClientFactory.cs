@@ -29,7 +29,7 @@ internal static class ClientFactory
                     Endpoint = req.Endpoint,
                     Auth = req.Auth,
                     ApiKey = req.ApiKey,
-                    Deployment = req.Deployment,
+                    Deployment = req.Deployment ?? "",
                     MaxDimensions = req.MaxDimensions,
                     SupportsCustomDimensions = req.SupportsCustomDimensions
                 }, loggerFactory);
@@ -39,7 +39,7 @@ internal static class ClientFactory
                 {
                     Endpoint = req.Endpoint,
                     ApiKey = req.ApiKey,
-                    Model = req.Model,
+                    Model = req.Model ?? "",
                     MaxDimensions = req.MaxDimensions,
                     SupportsCustomDimensions = req.SupportsCustomDimensions
                 }, loggerFactory);

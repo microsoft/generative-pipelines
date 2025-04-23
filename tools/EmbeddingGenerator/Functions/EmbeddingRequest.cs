@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace EmbeddingGenerator.Functions;
 
-internal class EmbeddingRequest : IValidatableObject
+internal sealed class EmbeddingRequest : IValidatableObject
 {
     [JsonPropertyName("modelId")]
     [JsonPropertyOrder(1)]
