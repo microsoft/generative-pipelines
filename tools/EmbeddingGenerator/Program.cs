@@ -2,10 +2,11 @@
 
 using CommonDotNet.Diagnostics;
 using CommonDotNet.Http;
+using CommonDotNet.Models;
+using CommonDotNet.OpenApi;
 using CommonDotNet.ServiceDiscovery;
+using EmbeddingGenerator.Config;
 using EmbeddingGenerator.Functions;
-using EmbeddingGenerator.Models;
-using EmbeddingGenerator.OpenApi;
 
 namespace EmbeddingGenerator;
 
@@ -19,7 +20,7 @@ internal static class Program
         builder.AddRedisToolsRegistry();
         builder.Services.AddOpenApi();
         builder.Services.ConfigureSerializationOptions();
-        builder.Services.AddSingleton(builder.Configuration.GetSection("App").Get<AppConfig>()?.Validate() ?? throw new ApplicationException(nameof(AppConfig) + " not available"));
+        builder.Services.AddSingleton(builder.Configuration.GetSection("App").Get<AppConfig>().EnsureValid());
         builder.Services.AddScoped<EmbeddingFunction>();
         builder.Services.AddScoped<CustomEmbeddingFunction>();
 
@@ -69,7 +70,7 @@ internal static class Program
             })
             .Produces<Dictionary<string, Dictionary<string, object>>>(StatusCodes.Status200OK)
             .WithName(ListModelsFunctionName)
-            .WithDisplayName("Get embedding providers")
+            .WithDisplayName("List embedding models")
             .WithDescription("Get the list of available embedding providers")
             .WithSummary("Get the list of available embedding providers");
 

@@ -8,6 +8,10 @@ Split text into structured chunks
 
 Generate embeddings for a list of strings.
 
+## TextGenerator
+
+Generate text using LLMs.
+
 ## Extractor
 
 Extract text from PDF, Word, Excel, PowerPoint, Image files
@@ -20,19 +24,9 @@ Use TypeChat library.
 
 Fetch content from Wikipedia.
 
-# TODO
-
-- Upload and store files
-- Extract text from web pages
-- Generate embeddings for a list of strings
-- Store embeddings in a database
-- Generate a list of queries for a given user message (string)
-- Generate embeddings for a list of strings
-- Search database for relevant records, using embeddings
-
 # Creating tools and functions
 
-## .NET
+## C#
 
 1. `dotnet new create webapi --name MyTool`
 2. Expose a `POST /` endpoint that accepts a JSON payload and returns a JSON response.

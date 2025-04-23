@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using EmbeddingGenerator.Embeddings;
-using EmbeddingGenerator.Models;
+using CommonDotNet.Models;
+using EmbeddingGenerator.Client;
+using EmbeddingGenerator.Config;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenAI.Embeddings;
 
@@ -11,11 +12,13 @@ internal sealed class EmbeddingFunction
 {
     private readonly AppConfig _appConfig;
     private readonly ILogger<EmbeddingFunction> _log;
+    private readonly ILoggerFactory _loggerFactory;
 
-    public EmbeddingFunction(AppConfig appConfig, ILoggerFactory? lf = null)
+    public EmbeddingFunction(AppConfig appConfig, ILoggerFactory? loggerFactory = null)
     {
         this._appConfig = appConfig;
-        this._log = (lf ?? NullLoggerFactory.Instance).CreateLogger<EmbeddingFunction>();
+        this._loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
+        this._log = this._loggerFactory.CreateLogger<EmbeddingFunction>();
     }
 
     public async Task<IResult> InvokeAsync(EmbeddingRequest req, CancellationToken cancellationToken = default)
@@ -30,18 +33,20 @@ internal sealed class EmbeddingFunction
             return Results.BadRequest($"Embedding model {req.ModelId} is not available. Check /models for the list of available models.");
         }
 
+        model.EnsureValid();
+
         EmbeddingClient client;
         AIModelConfig modelSettings;
         switch (model.Provider)
         {
             case ModelInfo.ModelProviders.OpenAI:
                 modelSettings = this._appConfig.OpenAI.GetModelById(req.ModelId);
-                client = ClientFactory.GetClient((OpenAIModelConfig)modelSettings, this._log);
+                client = ClientFactory.GetEmbeddingClient((OpenAIModelConfig)modelSettings, this._loggerFactory);
                 break;
 
             case ModelInfo.ModelProviders.AzureAI:
                 modelSettings = this._appConfig.AzureAI.GetModelById(req.ModelId);
-                client = ClientFactory.GetClient((AzureAIDeploymentConfig)modelSettings, this._log);
+                client = ClientFactory.GetEmbeddingClient((AzureAIDeploymentConfig)modelSettings, this._loggerFactory);
                 break;
 
             default:

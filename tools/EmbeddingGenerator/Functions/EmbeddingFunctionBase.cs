@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System.ClientModel;
-using EmbeddingGenerator.Models;
 using OpenAI.Embeddings;
 
 namespace EmbeddingGenerator.Functions;

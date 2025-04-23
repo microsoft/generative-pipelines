@@ -57,25 +57,26 @@ internal static class Program
 
         CreateDockerDataBindMountDirectory();
 
-        // Tip: see https://azure.microsoft.com/products/storage/storage-explorer to browse Azure Storage
         var azureStorage = AddAzureStorage(); // Blobs and Queues
         var redis = AddRedisResources(); // Cache and KV
         var postgres = AddPostgresResources(); // Vector storage
         var qdrant = AddQdrantResources(); // Vector storage
         var azSearch = AddAzureAiSearch(); // Vector storage with semantic ranking
         var orchestrator = AddOrchestrator(azureStorage.blobs, azureStorage.queues, redis); // Orchestrator
+        var ollama = AddOllama();
 
-        List<IResourceBuilder<IResourceWithConnectionString>?> references = [redis, azSearch, postgres, qdrant, azureStorage.blobs, azureStorage.queues];
+        List<IResourceBuilder<IResourceWithConnectionString>?> references = [redis, azSearch, postgres, qdrant, azureStorage.blobs, azureStorage.queues, ollama];
 
         // Tools
         var toolNames = new List<string>();
         Echo("=================================");
-        AddDotNetTools(orchestrator, references).AddToList(toolNames);
+        AddCSharpTools(orchestrator, references).AddToList(toolNames);
+        AddFSharpTools(orchestrator, references).AddToList(toolNames);
         AddNodeJsTools(orchestrator, references).AddToList(toolNames);
         AddPythonTools(orchestrator, references).AddToList(toolNames);
         Echo("=================================");
 
-        s_builder.ConfigureDashboard(toolNames);
+        s_builder.Configure(toolNames);
 
         s_builder.ShowDashboardUrl(true).Build().Run();
     }
@@ -99,7 +100,7 @@ internal static class Program
         IResourceBuilder<AzureQueueStorageResource> queues,
         IResourceBuilder<IResourceWithConnectionString>? redis)
     {
-        IResourceBuilder<ProjectResource> orchestrator = AddDotNetService("orchestrator", s_orchestratorProjectFile)
+        IResourceBuilder<ProjectResource> orchestrator = AddCSharpTool("orchestrator", s_orchestratorProjectFile)
             .WithExternalHttpEndpoints(); // The orchestrator is the only public endpoint
 
         orchestrator.WithReference(blobs).WaitFor(blobs);
@@ -144,6 +145,17 @@ internal static class Program
         return orchestrator;
     }
 
+    private static IResourceBuilder<OllamaResource> AddOllama()
+    {
+        IResourceBuilder<OllamaResource> ollama = s_builder.AddOllama("ollama")
+            .WithImage(image: s_config.OllamaContainerImage, tag: s_config.OllamaContainerTag)
+            .WithDataVolume();
+
+        ollama.AddModel("phi4mini", modelName: "phi4-mini");
+
+        return ollama;
+    }
+
     private static (IResourceBuilder<AzureBlobStorageResource> blobs, IResourceBuilder<AzureQueueStorageResource> queues) AddAzureStorage()
     {
         IResourceBuilder<AzureStorageResource> storage = s_builder.AddAzureStorage("AzureStorage");
@@ -155,6 +167,11 @@ internal static class Program
 
         IResourceBuilder<AzureBlobStorageResource> blobs = storage.AddBlobs(AzureBlobsConnStringName);
         IResourceBuilder<AzureQueueStorageResource> queues = storage.AddQueues(AzureQueuesConnStringName);
+
+        // Options to browse Azure Storage:
+        // - Storage Explorer https://azure.microsoft.com/products/storage/storage-explorer
+        // - VS Code extensions
+        // - Jetbrains Rider Azure Toolkit
 
         return (blobs, queues);
     }
@@ -300,17 +317,17 @@ internal static class Program
     /// <summary>
     /// Discover and add all .NET tools.
     /// </summary>
-    private static List<string> AddDotNetTools(IResourceBuilder<ProjectResource> orchestrator,
+    private static List<string> AddCSharpTools(IResourceBuilder<ProjectResource> orchestrator,
         ICollection<IResourceBuilder<IResourceWithConnectionString>?> references)
     {
         try
         {
-            var dnProjects = ToolDiscovery.FindDotNetProjects(s_toolsPath).ToList();
-            foreach (var p in dnProjects)
+            var csProjects = ToolDiscovery.FindCSharpTools(s_toolsPath).ToList();
+            foreach (var p in csProjects)
             {
-                Echo($"- Adding {p.name} (.NET {p.projectFilePath})");
+                Echo($"- Adding {p.name} (C# {p.projectFilePath})");
 
-                IResourceBuilder<ProjectResource> resource = AddDotNetService(p.name, p.projectFilePath)
+                IResourceBuilder<ProjectResource> resource = AddCSharpTool(p.name, p.projectFilePath)
                     .WithEnvironment(ToolNameEnvVar, p.name);
 
                 // Inject connection strings
@@ -319,11 +336,43 @@ internal static class Program
                 orchestrator.WithReference(resource);
             }
 
-            return dnProjects.Select(x => x.name).ToList();
+            return csProjects.Select(x => x.name).ToList();
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error discovering .NET projects: {ex.Message}");
+            Console.Error.WriteLine($"Error discovering C# projects: {ex.Message}");
+            Environment.Exit(1);
+            return null!;
+        }
+    }
+
+    /// <summary>
+    /// Discover and add all .NET tools.
+    /// </summary>
+    private static List<string> AddFSharpTools(IResourceBuilder<ProjectResource> orchestrator,
+        ICollection<IResourceBuilder<IResourceWithConnectionString>?> references)
+    {
+        try
+        {
+            var fsProjects = ToolDiscovery.FindFSharpTools(s_toolsPath).ToList();
+            foreach (var p in fsProjects)
+            {
+                Echo($"- Adding {p.name} (F# {p.projectFilePath})");
+
+                IResourceBuilder<ProjectResource> resource = AddFSharpTool(p.name, p.projectFilePath)
+                    .WithEnvironment(ToolNameEnvVar, p.name);
+
+                // Inject connection strings
+                foreach (var r in references.Where(x => x != null)) { resource.WithReference(r!); }
+
+                orchestrator.WithReference(resource);
+            }
+
+            return fsProjects.Select(x => x.name).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error discovering F# projects: {ex.Message}");
             Environment.Exit(1);
             return null!;
         }
@@ -337,12 +386,12 @@ internal static class Program
     {
         try
         {
-            var pyProjects = ToolDiscovery.FindPythonProjects(s_toolsPath).ToList();
+            var pyProjects = ToolDiscovery.FindPythonTools(s_toolsPath).ToList();
             foreach (var p in pyProjects)
             {
                 Echo($"- Adding {p.name} ({p.dirName} Python tool)");
 
-                var resource = AddPythonService(p.name, p.dirName)
+                var resource = AddPythonTool(p.name, p.dirName)
                     .WithEnvironment(ToolNameEnvVar, p.name);
 
                 // Inject connection strings
@@ -369,12 +418,12 @@ internal static class Program
     {
         try
         {
-            var nodeProjects = ToolDiscovery.FindNodeJsProjects(s_toolsPath).ToList();
+            var nodeProjects = ToolDiscovery.FindNodeJsTools(s_toolsPath).ToList();
             foreach (var p in nodeProjects)
             {
                 Echo($"- Adding {p.name} ({p.dirName} Node.js tool)");
 
-                var resource = AddNodeJsService(p.name, p.dirName)
+                var resource = AddNodeJsTool(p.name, p.dirName)
                     .WithEnvironment(ToolNameEnvVar, p.name);
 
                 // Inject connection strings
@@ -397,13 +446,13 @@ internal static class Program
     /// Add a .NET service.
     /// Important: .NET projects must have their launchSettings defining the http and https endpoints
     /// </summary>
-    /// <param name="name">Service name</param>
-    /// <param name="projectFile">Path to the .csproj file</param>
-    private static IResourceBuilder<ProjectResource> AddDotNetService(
-        string name,
-        string projectFile)
+    /// <param name="toolName">Service name</param>
+    /// <param name="cSharpProjectFile">Path to the .csproj file</param>
+    private static IResourceBuilder<ProjectResource> AddCSharpTool(
+        string toolName,
+        string cSharpProjectFile)
     {
-        var p = s_builder.AddProject(name: name, projectPath: Path.Join(s_toolsPath, projectFile));
+        var p = s_builder.AddProject(name: toolName, projectPath: Path.Join(s_toolsPath, cSharpProjectFile));
 
         // Disable proxying during development, making it easier to work with Swagger/Scalar
         // and reducing Aspire errors with ports in use
@@ -417,20 +466,43 @@ internal static class Program
     }
 
     /// <summary>
-    /// Add Node.js service.
+    /// Add a .NET F# tool.
+    /// Important: .NET projects must have their launchSettings defining the http and https endpoints
+    /// </summary>
+    /// <param name="toolName">Tool name</param>
+    /// <param name="fSharpProjectFile">Path to the .csproj file</param>
+    private static IResourceBuilder<ProjectResource> AddFSharpTool(
+        string toolName,
+        string fSharpProjectFile)
+    {
+        var p = s_builder.AddProject(name: toolName, projectPath: Path.Join(s_toolsPath, fSharpProjectFile));
+
+        // Disable proxying during development, making it easier to work with Swagger/Scalar
+        // and reducing Aspire errors with ports in use
+        if (s_builder.ExecutionContext.IsRunMode)
+        {
+            p.WithEndpoint("http", e => { e.IsProxied = false; });
+            p.WithEndpoint("https", e => { e.IsProxied = false; });
+        }
+
+        return p;
+    }
+
+    /// <summary>
+    /// Add Node.js tool.
     /// Important: Node.js projects must have a package.json with a "start"
     ///            script and a Dockerfile for deployments.
     /// </summary>
-    /// <param name="name">Service name</param>
-    /// <param name="directory">Directory containing the package.json file</param>
-    /// <param name="scriptName">Name of the script (defined in package.json) to execute</param>
-    private static IResourceBuilder<NodeAppResource> AddNodeJsService(
-        string name,
-        string directory,
-        string scriptName = "start")
+    /// <param name="toolName">Tool name</param>
+    /// <param name="toolDirectory">Directory containing the package.json file</param>
+    /// <param name="startScriptName">Name of the script (defined in package.json) to execute</param>
+    private static IResourceBuilder<NodeAppResource> AddNodeJsTool(
+        string toolName,
+        string toolDirectory,
+        string startScriptName = "start")
     {
         var resource = s_builder
-            .AddPnpmApp(name: name, workingDirectory: Path.Join(s_toolsPath, directory), scriptName: scriptName)
+            .AddPnpmApp(name: toolName, workingDirectory: Path.Join(s_toolsPath, toolDirectory), scriptName: startScriptName)
             .WithPnpmPackageInstallation() // use "pnpm"
             .PublishAsDockerFile()
             .WithHttpEndpoint(name: "http", env: "PORT"); // pass random port into PORT env var, used by Node.js project
@@ -445,22 +517,22 @@ internal static class Program
     }
 
     /// <summary>
-    /// Add Python service.
+    /// Add Python tool.
     /// Important: Python projects must have a pyproject.toml file, a specific structure,
     ///            and a Dockerfile for deployments.
     /// </summary>
-    /// <param name="name">Service name</param>
-    /// <param name="directory">Directory containing the pyproject.toml file</param>
-    private static IResourceBuilder<UvicornAppResource> AddPythonService(
-        string name,
-        string directory)
+    /// <param name="toolName">Tool name</param>
+    /// <param name="toolDirectory">Directory containing the pyproject.toml file</param>
+    private static IResourceBuilder<UvicornAppResource> AddPythonTool(
+        string toolName,
+        string toolDirectory)
     {
-        string relativePath = Path.Join(s_toolsPath, directory);
+        string relativePath = Path.Join(s_toolsPath, toolDirectory);
         string absolutePath = Path.GetFullPath(relativePath);
 
         return s_builder
             .PatchedAddUvicornApp(
-                name: name,
+                name: toolName,
                 projectDirectory: absolutePath,
                 appName: "app.main:app")
             .PublishAsDockerFile()

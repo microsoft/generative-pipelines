@@ -1,0 +1,8 @@
+{
+  "AzureAIEndpoint": "https://....cognitiveservices.azure.com/",
+  "AzureAIEmbeddingAuth": "DefaultAzureCredential",
+  "AzureAIEmbeddingModelId": "azure-text-embedding-3-small",
+  "AzureAIEmbeddingDeployment": "text-embedding-3-small",
+
+  "OpenAIEmbeddingAuth": "sk-proj-...",
+}

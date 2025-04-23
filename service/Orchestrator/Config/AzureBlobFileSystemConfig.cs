@@ -8,7 +8,7 @@ namespace Orchestrator.Config;
 public sealed class AzureBlobFileSystemConfig
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum AuthTypes
+    public enum AzureAuthTypes
     {
         Unknown = -1,
 
@@ -34,7 +34,7 @@ public sealed class AzureBlobFileSystemConfig
     /// Azure authentication type
     /// Default to .NET Aspire mode
     /// </summary>
-    public AuthTypes Auth { get; set; } = AuthTypes.ConnectionString;
+    public AzureAuthTypes Auth { get; set; } = AzureAuthTypes.ConnectionString;
 
     /// <summary>
     /// Container used for storing files

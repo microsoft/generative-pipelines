@@ -33,6 +33,7 @@ services:
       - services__chunker__http__0=http://chunker:4002
       - services__extractor__http__0=http://extractor:4013
       - services__embedding_generator__http__0=http://embedding-generator:5083
+      - services__text_generator__http__0=http://text-generator:5217
       - services__vector_storage_sk__http__0=http://vector-storage-sk:21365
       - services__type-chat__http__0=http://type-chat:3000
       - services__wikipedia__http__0=http://wikipedia:6001
@@ -114,6 +115,19 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - TOOL_NAME=embedding-generator
+      - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
+      - Logging__LogLevel__Default=Information
+      - ConnectionStrings__redisstorage=redis-storage:6379
+      - ConnectionStrings__blobstorage=${ConnectionStrings__blobstorage:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;}
+      - App__OpenAI__ApiKey=${OPENAI_API_KEY:-}
+
+  text-generator:
+    image: gptools/text-generator:latest
+    ports:
+      - "5217:5217"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TOOL_NAME=text-generator
       - GenerativePipelines__ToolsRegistryEnabled=${TOOLS_REGISTRY_ENABLED:-true}
       - Logging__LogLevel__Default=Information
       - ConnectionStrings__redisstorage=redis-storage:6379

@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using EmbeddingGenerator.Embeddings;
-using EmbeddingGenerator.Models;
+using CommonDotNet.Models;
+using EmbeddingGenerator.Client;
+using EmbeddingGenerator.Config;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace EmbeddingGenerator.Functions;
@@ -9,10 +10,12 @@ namespace EmbeddingGenerator.Functions;
 internal sealed class CustomEmbeddingFunction
 {
     private readonly ILogger<CustomEmbeddingFunction> _log;
+    private readonly ILoggerFactory _loggerFactory;
 
-    public CustomEmbeddingFunction(AppConfig appConfig, ILoggerFactory? lf = null)
+    public CustomEmbeddingFunction(AppConfig appConfig, ILoggerFactory? loggerFactory = null)
     {
-        this._log = (lf ?? NullLoggerFactory.Instance).CreateLogger<CustomEmbeddingFunction>();
+        this._loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
+        this._log = this._loggerFactory.CreateLogger<CustomEmbeddingFunction>();
     }
 
     public async Task<IResult> InvokeAsync(CustomEmbeddingRequest req, CancellationToken cancellationToken = default)
@@ -21,7 +24,7 @@ internal sealed class CustomEmbeddingFunction
 
         if (!req.FixState().IsValid(out var errMsg)) { return Results.BadRequest(errMsg); }
 
-        var client = ClientFactory.GetClient(req, this._log);
+        var client = ClientFactory.GetEmbeddingClient(req, this._loggerFactory);
 
         return await EmbeddingFunctionBase.InvokeAsync(
             client,

@@ -95,6 +95,10 @@ dockerize-chunker:
 dockerize-embedding-generator:
     @docker buildx build --no-cache --progress tty --file tools/EmbeddingGenerator/Dockerfile --tag gptools/embedding-generator:local tools
 
+# Create dev image for the Text Generator tool (tag: local)
+dockerize-text-generator:
+    @docker buildx build --no-cache --progress tty --file tools/TextGenerator/Dockerfile --tag gptools/text-generator:local tools
+
 # Create dev image for the Extractor tool (tag: local)
 dockerize-extractor:
     @docker buildx build --no-cache --progress tty --file tools/Extractor/Dockerfile --tag gptools/extractor:local tools
