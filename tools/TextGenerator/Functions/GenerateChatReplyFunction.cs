@@ -27,14 +27,6 @@ internal sealed class GenerateChatReplyFunction
 
         // var client = ClientFactory.GetClient(req, this._log);
 
-        // return await EmbeddingFunctionBase.InvokeAsync(
-        //     client,
-        //     req.Input,
-        //     req.Inputs,
-        //     req.SupportsCustomDimensions,
-        //     req.Dimensions,
-        //     cancellationToken).ConfigureAwait(false);
-
         await Task.Delay(100, cancellationToken).ConfigureAwait(false);
 
         return Results.Ok();

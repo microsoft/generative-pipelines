@@ -16,9 +16,9 @@ FROM mcr.microsoft.com/dotnet/sdk:$BUILD_IMAGE_TAG AS build
 
 ARG BUILD_CONFIGURATION=Release
 
-COPY TextGeneratorSk /src/TextGeneratorSk
+COPY TextGenerator /src/TextGenerator
 COPY _libs /src/_libs
-WORKDIR "/src/TextGeneratorSk"
+WORKDIR "/src/TextGenerator"
 
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build /p:RepoRoot=/src/
 RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false /p:RepoRoot=/src/

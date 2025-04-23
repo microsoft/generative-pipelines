@@ -1,0 +1,16 @@
+{
+  "App":{
+    "Workspace": {
+      "Auth": "AzureCliCredential",
+    },
+  },
+//  "ConnectionStrings": {
+//    // Injected by Aspire (e.g. Redis connection string)
+//    "blobstorage": "https://.....blob.core.windows.net/"
+//  },
+//  "Logging": {
+//    "LogLevel": {
+//      "Default": "Information",
+//    }
+//  }
+}
