@@ -14,7 +14,7 @@ internal static class DashboardView
     private const string Ollama = "ollama";
     private const string OllamaUi = Ollama + "-openwebui";
 
-    public static void ConfigureDashboard(this IDistributedApplicationBuilder appBuilder, List<string> toolNames)
+    public static void Configure(this IDistributedApplicationBuilder appBuilder, List<string> toolNames)
     {
         var builders = new Dictionary<string, IResourceBuilder<IResource>>();
         var resources = new Dictionary<string, IResource>();
@@ -32,6 +32,10 @@ internal static class DashboardView
         ConfigureOllama(resources, builders);
     }
 
+    /// <summary>
+    /// Show all the tools under the orchestrator.
+    /// For each tool, remove the endpoint and show the swagger link instead
+    /// </summary>
     private static void ConfigureOrchestrator(
         Dictionary<string, IResource> resources,
         Dictionary<string, IResourceBuilder<IResource>> builders,
@@ -68,6 +72,9 @@ internal static class DashboardView
         }
     }
 
+    /// <summary>
+    /// Organize Qdrant resources under the Qdrant resource and show links only on the root node.
+    /// </summary>
     private static void ConfigureQdrant(
         Dictionary<string, IResource> resources,
         Dictionary<string, IResourceBuilder<IResource>> builders)
@@ -86,6 +93,9 @@ internal static class DashboardView
         }
     }
 
+    /// <summary>
+    /// Organize Postgres resources under the Postgres resource and show links only on the root node.
+    /// </summary>
     private static void ConfigurePostgres(
         Dictionary<string, IResource> resources,
         Dictionary<string, IResourceBuilder<IResource>> builders)
@@ -121,6 +131,9 @@ internal static class DashboardView
         }
     }
 
+    /// <summary>
+    /// Organize Redis resources under the Redis resource and show links only on the root node.
+    /// </summary>
     private static void ConfigureRedis(
         Dictionary<string, IResource> resources,
         Dictionary<string, IResourceBuilder<IResource>> builders)
@@ -183,6 +196,9 @@ internal static class DashboardView
         }
     }
 
+    /// <summary>
+    /// Organize Ollama resources under the Ollama resource and show links only on the root node.
+    /// </summary>
     private static void ConfigureOllama(
         Dictionary<string, IResource> resources,
         Dictionary<string, IResourceBuilder<IResource>> builders)
@@ -200,10 +216,10 @@ internal static class DashboardView
             builders[Ollama]
                 // Hide default endpoint
                 .WithUrlForEndpoint("http", url => { url.Url = ""; })
-                // Add a link to pgAdmin
+                // Add a link to Ollama Web UI
                 .WithUrls(pg =>
                 {
-                    // Add a link to pgAdmin
+                    // Add a link to Ollama Web UI
                     pg.Urls.Add(new ResourceUrlAnnotation
                     {
                         DisplayOrder = 100,
@@ -211,7 +227,7 @@ internal static class DashboardView
                         Url = ollamaUiWithEndpoints.GetEndpoint("http").Url
                     });
 
-                    // Hide pgAdmin resource endpoint
+                    // Hide Ollama Web UI resource endpoint
                     ollamaUiWithEndpoints.Annotations.Where(a => a is EndpointAnnotation).ToList().ForEach(a => ollamaUiWithEndpoints.Annotations.Remove(a));
                 });
         }

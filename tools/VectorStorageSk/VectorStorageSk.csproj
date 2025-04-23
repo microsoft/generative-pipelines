@@ -28,14 +28,16 @@
         <PackageReference Include="Microsoft.OData.Edm" Version="8.2.3" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0.2" />
     </ItemGroup>
-
-    <!--    <ItemGroup>-->
-    <!--        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.AzureAISearch\Connectors.Memory.AzureAISearch.csproj" />-->
-    <!--        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.InMemory\Connectors.Memory.InMemory.csproj" />-->
-    <!--        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.Postgres\Connectors.Memory.Postgres.csproj" />-->
-    <!--        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.Qdrant\Connectors.Memory.Qdrant.csproj" />-->
-    <!--        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\VectorData.Abstractions\VectorData.Abstractions.csproj" />-->
-    <!--    </ItemGroup>-->
+    
+    <!--    
+    <ItemGroup>
+        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.AzureAISearch\Connectors.Memory.AzureAISearch.csproj" />
+        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.InMemory\Connectors.Memory.InMemory.csproj" />
+        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.Postgres\Connectors.Memory.Postgres.csproj" />
+        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\Connectors.Memory.Qdrant\Connectors.Memory.Qdrant.csproj" />
+        <ProjectReference Include="..\_libs\SK\dotnet\src\Connectors\VectorData.Abstractions\VectorData.Abstractions.csproj" />
+    </ItemGroup>
+    -->
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.0.0-preview.1.25161.1" />
@@ -46,14 +48,16 @@
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.Qdrant" Version="1.46.0-preview" />
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.46.0-preview" />
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.Sqlite" Version="1.46.0-preview" />
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureCosmosDBMongoDB" Version="1.44.0-preview" />-->
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureCosmosDBNoSQL" Version="1.44.0-preview" />-->
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.DuckDB" Version="1.44.0-alpha" />-->
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Milvus" Version="1.44.0-alpha" />-->
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.MongoDB" Version="1.44.0-preview" />-->
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Pinecone" Version="1.44.0-preview" />-->
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.SqlServer" Version="1.44.0-preview" />-->
-        <!--        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Weaviate" Version="1.44.0-preview" />-->
+        <!--    
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureCosmosDBMongoDB" Version="1.44.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureCosmosDBNoSQL" Version="1.44.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.DuckDB" Version="1.44.0-alpha" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Milvus" Version="1.44.0-alpha" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.MongoDB" Version="1.44.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Pinecone" Version="1.44.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.SqlServer" Version="1.44.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Weaviate" Version="1.44.0-preview" />
+        -->
     </ItemGroup>
 
 </Project>

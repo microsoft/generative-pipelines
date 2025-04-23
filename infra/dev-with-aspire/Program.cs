@@ -76,7 +76,7 @@ internal static class Program
         AddPythonTools(orchestrator, references).AddToList(toolNames);
         Echo("=================================");
 
-        s_builder.ConfigureDashboard(toolNames);
+        s_builder.Configure(toolNames);
 
         s_builder.ShowDashboardUrl(true).Build().Run();
     }
