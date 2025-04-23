@@ -12,7 +12,7 @@ env:
   LATEST_TAG:   latest                             # ${{ env.LATEST_TAG }}
   DOCKERCTX:    service                            # docker build context
   DOCKERFILE:   service/Orchestrator/Dockerfile    # path to Dockerfile
-  CHANGED_PATH: tools/Orchestrator                 # path to check for changes
+  CHANGED_PATH1: tools/Orchestrator                # path to check for changes
 
 jobs:
   check-changes:
@@ -28,7 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           git fetch --prune --unshallow origin main
-          if git log --since="7 days ago" --pretty=format: --name-only origin/main -- "${{ env.CHANGED_PATH }}" | grep .; then
+          if git log --since="7 days ago" --pretty=format: --name-only origin/main -- "${{ env.CHANGED_PATH1 }}" | grep .; then
             echo "Changes detected"
             echo "changed=true" >> $GITHUB_OUTPUT
           else
