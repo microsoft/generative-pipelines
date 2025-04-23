@@ -62,7 +62,7 @@ internal static class Program
         //     .WithDescription("Generate reply for a given chat history")
         //     .WithSummary("Generate reply for a given chat history");
 
-        registry?.RegisterPostFunction($"/{ListModelsFunctionName}", "List the models available to generate text adn replies");
+        registry?.RegisterPostFunction($"/{ListModelsFunctionName}", "List the models available to generate text and replies");
         app.MapPost($"/{ListModelsFunctionName}", IResult () =>
             {
                 Dictionary<string, ModelInfo> list = appConfig.GetModelsInfo();
