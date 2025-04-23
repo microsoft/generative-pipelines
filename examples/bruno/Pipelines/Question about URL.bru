@@ -1,7 +1,7 @@
 meta {
-  name: URL Ingestion
+  name: Question about URL
   type: http
-  seq: 2
+  seq: 6
 }
 
 post {
@@ -16,10 +16,18 @@ headers {
 
 body:text {
   input:
-    sourceId: itwikidolomiti # This is a unique identifier to identify the records in the database, so they can be updated or deleted
-    page: Dolomiti
-    url: https://it.wikipedia.org/wiki/Dolomiti
-    tags: [ 'user=devis','type=wiki','lang=it' ]
+    prompt: |
+      Extract the rock types. Concise dotted list:
+      {{#each results}}
+        {{content}}
+        -----------
+      {{/each}}
+      
+    textModel: gpt-4.1-nano
+    sourceId: enwikidolomiti # Unique identifier to identify the records, so they can be updated or deleted
+    page: Dolomites
+    url: https://en.wikipedia.org/wiki/Dolomiti
+    tags: [ 'user=devis','type=wiki','lang=en' ]
     isTest: True
     chunkSize: 500
     chunkOverlap: 0
@@ -31,7 +39,7 @@ body:text {
     # azureaisearch | postgres | qdrant | InMemory
     vectorStorage: postgres
   
-    collection: foo
+    collection: wiki
     dataType: MemoryRecord
     fields:
       - name: Id
@@ -60,14 +68,14 @@ body:text {
   _workflow:
     steps:
   
-  #    # Delete data collection (in case the schema changed)
-  #    - id: delete_collection
-  #      function: vector-storage-sk/delete-collection
-  #      xin: >
-  #        {
-  #          storageType: start.input.vectorStorage,
-  #          collection:  start.input.collection
-  #        }
+      # Delete data collection (in case the schema changed)
+      - id: delete_collection
+        function: vector-storage-sk/delete-collection
+        xin: >
+          {
+            storageType: start.input.vectorStorage,
+            collection:  start.input.collection
+          }
   
       # Create record collection (if not exists)
       - id: create_collection
@@ -80,7 +88,7 @@ body:text {
           }
   
       # Fetch a web page (file upload is supported too)
-      - function: wikipedia/it
+      - function: wikipedia/en
         id: wikipedia
         xin: >
           {
@@ -147,14 +155,6 @@ body:text {
             }}
           }
   
-      # Delete old records
-      #- function: vector-storage-sk/delete
-      #  xin: >
-      #    find_old_records.out.results[*].value.id
-  
-      # Stop
-      #- function: break
-  
       # Store records
       - function: vector-storage-sk/upsert
         xin: >
@@ -164,11 +164,34 @@ body:text {
             fields:      start.input.fields,
             values:      combine.out.values
           }
-  
-      # ...
-      # - generate graph
-      # - store graph
-      # - etc
-      # ...
+      
+      # Search
+      - function: vector-storage-sk/search
+        xin: >
+          {
+            storageType: start.input.vectorStorage,
+            collection:  start.input.collection,
+            dataType:    start.input.dataType,
+            fields:      start.input.fields,
+            skip:        `0`,
+            top:         `30`
+          }
+        xout: >
+          {
+            results: state.results[*].{
+              content: value.content
+            }
+          }
+    
+      # Execute prompt
+      - function: text-generator/generate
+        xin: >
+          {
+            modelId: start.input.textModel,
+            prompt: start.input.prompt,
+            promptTemplateData: state,
+            promptType: 'Handlebars'
+          }
+        xout: state.text
   
 }

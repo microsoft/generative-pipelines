@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using CommonDotNet.Diagnostics;
 using CommonDotNet.Models;
+using HandlebarsDotNet;
+using HandlebarsDotNet.Extension.Json;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenAI.Chat;
@@ -165,17 +167,40 @@ internal sealed class GenerateTextFunction
 
     private List<ChatMessage> PrepareChatHistory(GenerateTextRequest req)
     {
-        var chatHistory = new List<ChatMessage>();
-        if (!string.IsNullOrWhiteSpace(req.SystemPrompt))
+        var systemPrompt = req.SystemPrompt;
+        var prompt = req.Prompt;
+
+        // Handlebars prompt rendering
+        if (req.SystemPromptType == PromptTypes.Handlebars || req.PromptType == PromptTypes.Handlebars)
         {
-            this._log.LogTrace("System prompt: {System}", req.SystemPrompt);
-            chatHistory.Add(new ChatMessage(ChatRole.System, req.SystemPrompt));
+            var handlebars = Handlebars.Create();
+            handlebars.Configuration.UseJson();
+
+            if (req.SystemPromptType == PromptTypes.Handlebars && !string.IsNullOrWhiteSpace(systemPrompt))
+            {
+                systemPrompt = handlebars.Compile(systemPrompt).Invoke(req.PromptTemplateData);
+            }
+
+            if (req.PromptType == PromptTypes.Handlebars && !string.IsNullOrWhiteSpace(prompt))
+            {
+                prompt = handlebars.Compile(prompt).Invoke(req.PromptTemplateData);
+            }
         }
 
-        if (!string.IsNullOrWhiteSpace(req.Prompt))
+        this._log.LogInformation("System prompt: {SystemPrompt}", systemPrompt);
+        this._log.LogInformation("Prompt: {Prompt}", prompt);
+
+        var chatHistory = new List<ChatMessage>();
+        if (!string.IsNullOrWhiteSpace(systemPrompt))
         {
-            this._log.LogTrace("Prompt: {Prompt}", req.Prompt);
-            chatHistory.Add(new ChatMessage(ChatRole.User, req.Prompt));
+            this._log.LogTrace("System prompt: {System}", systemPrompt);
+            chatHistory.Add(new ChatMessage(ChatRole.System, systemPrompt));
+        }
+
+        if (!string.IsNullOrWhiteSpace(prompt))
+        {
+            this._log.LogTrace("Prompt: {Prompt}", prompt);
+            chatHistory.Add(new ChatMessage(ChatRole.User, prompt));
         }
 
         return chatHistory;
