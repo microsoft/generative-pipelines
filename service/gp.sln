@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "..\service\client
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.Tests", "..\tests\Client.Tests\Client.Tests.csproj", "{629D99E3-068F-43F2-8197-46528C1BFB8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextGeneratorSk", "..\tools\TextGeneratorSk\TextGeneratorSk.csproj", "{8D6F01D4-F225-40D6-B8DE-E5772AEC3A8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextGenerator", "..\tools\TextGenerator\TextGenerator.csproj", "{8D6F01D4-F225-40D6-B8DE-E5772AEC3A8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

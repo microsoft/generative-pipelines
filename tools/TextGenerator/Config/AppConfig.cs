@@ -3,7 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using CommonDotNet.Models;
 
-namespace TextGeneratorSk.Models;
+namespace TextGenerator.Config;
 
 internal sealed class AppConfig : IValidatableObject
 {
@@ -24,7 +24,7 @@ internal sealed class AppConfig : IValidatableObject
                 Provider = ModelInfo.ModelProviders.OpenAI,
                 Model = model.Value.Model,
                 ContextWindow = model.Value.ContextWindow,
-                MaxOutputTokens = model.Value.MaxOutputTokens
+                MaxOutputTokens = model.Value.MaxOutputTokens,
             };
 
             if (!string.IsNullOrWhiteSpace(model.Value.Endpoint))
@@ -47,9 +47,10 @@ internal sealed class AppConfig : IValidatableObject
             {
                 ModelId = model.Key,
                 Provider = ModelInfo.ModelProviders.AzureAI,
-                Model = model.Value.Deployment,
+                Deployment = model.Value.Deployment,
+                Endpoint = model.Value.Endpoint,
                 ContextWindow = model.Value.ContextWindow,
-                MaxOutputTokens = model.Value.MaxOutputTokens
+                MaxOutputTokens = model.Value.MaxOutputTokens,
             };
 
             modelInfo.EnsureValid();
@@ -62,6 +63,18 @@ internal sealed class AppConfig : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        return this.OpenAI.Validate(null!).Concat(this.AzureAI.Validate(null!));
+        foreach (var x in this.OpenAI.Validate(null!).Concat(this.AzureAI.Validate(null!)))
+        {
+            yield return x;
+        }
+
+        var modelIDs = new HashSet<string>();
+        foreach (var key in this.OpenAI.Models.Keys.Concat(this.AzureAI.Deployments.Keys))
+        {
+            if (!modelIDs.Add(key))
+            {
+                yield return new ValidationResult($"Duplicate Model ID found: {key}", [nameof(this.OpenAI.Models)]);
+            }
+        }
     }
 }

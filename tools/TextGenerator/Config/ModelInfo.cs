@@ -3,7 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace TextGeneratorSk.Models;
+namespace TextGenerator.Config;
 
 internal sealed class ModelInfo : IValidatableObject
 {
@@ -22,7 +22,12 @@ internal sealed class ModelInfo : IValidatableObject
     public ModelProviders Provider { get; set; } = ModelProviders.AzureAI;
 
     [JsonPropertyName("model")]
-    public string Model { get; set; } = string.Empty;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Model { get; set; }
+
+    [JsonPropertyName("deployment")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Deployment { get; set; }
 
     [JsonPropertyName("endpoint")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -41,14 +46,19 @@ internal sealed class ModelInfo : IValidatableObject
             yield return new ValidationResult("The model provider is required, the value is invalid", [nameof(this.Provider)]);
         }
 
+        if (this.Provider == ModelProviders.AzureAI && string.IsNullOrWhiteSpace(this.Deployment))
+        {
+            yield return new ValidationResult("The Azure deployment name is required, the value is empty", [nameof(this.Deployment)]);
+        }
+
+        if (this.Provider == ModelProviders.OpenAI && string.IsNullOrWhiteSpace(this.Model))
+        {
+            yield return new ValidationResult("The OpenAI model name is required, the value is empty", [nameof(this.Model)]);
+        }
+
         if (string.IsNullOrWhiteSpace(this.ModelId))
         {
             yield return new ValidationResult("The model ID is required, the value is empty", [nameof(this.ModelId)]);
-        }
-
-        if (string.IsNullOrWhiteSpace(this.Model))
-        {
-            yield return new ValidationResult("The model name is required, the value is empty", [nameof(this.Model)]);
         }
 
         if (this.ContextWindow < 1)

@@ -6,6 +6,7 @@ public abstract class BaseTestCase
 {
     protected readonly HttpClient Client;
     protected readonly HttpClient EmbeddingGeneratorClient;
+    protected readonly HttpClient TextGeneratorClient;
 
     protected readonly ITestOutputHelper Console;
 
@@ -14,6 +15,7 @@ public abstract class BaseTestCase
         this.Console = console;
         this.Client = new HttpClient { BaseAddress = new Uri("http://localhost:60000") };
         this.EmbeddingGeneratorClient = new HttpClient { BaseAddress = new Uri("http://localhost:5083") };
+        this.TextGeneratorClient = new HttpClient { BaseAddress = new Uri("http://localhost:5217") };
     }
 
     protected async Task<string> LogResponseAsync(HttpResponseMessage response)

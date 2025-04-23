@@ -3,7 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace TextGeneratorSk.Functions;
+namespace TextGenerator.Functions;
 
 internal sealed class GenerateTextRequest : IValidatableObject
 {
@@ -42,9 +42,18 @@ internal sealed class GenerateTextRequest : IValidatableObject
     /// The lower the value, the less diverse and more focused the completion.
     /// A higher value allows for more diverse completions by considering a larger set of possible tokens.
     /// </summary>
-    [JsonPropertyName("nucleusSampling")]
+    [JsonPropertyName("topP")]
     [JsonPropertyOrder(110)]
     public float NucleusSampling { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the number of most probable tokens that the model considers when generating
+    /// the next part of the text. This property reduces the probability of generating nonsense.
+    /// A higher value gives more diverse answers, while a lower value is more conservative.
+    /// </summary>
+    [JsonPropertyName("topK")]
+    [JsonPropertyOrder(110)]
+    public int? TruncatedSampling { get; set; } = 0;
 
     /// <summary>
     /// Number between -2.0 and 2.0. Positive values penalize new tokens
@@ -55,6 +64,15 @@ internal sealed class GenerateTextRequest : IValidatableObject
     [JsonPropertyOrder(120)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public float? PresencePenalty { get; set; }
+
+    /// <summary>
+    /// Sets the random number seed to use for generation.
+    /// Setting this to a specific number will make the model generate the same
+    /// text for the same prompt. (Default: 0)
+    /// </summary>
+    [JsonPropertyName("seed")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Seed { get; set; }
 
     /// <summary>
     /// Number between -2.0 and 2.0. Positive values penalize new tokens

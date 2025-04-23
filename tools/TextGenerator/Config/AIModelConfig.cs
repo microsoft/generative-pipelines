@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace TextGeneratorSk.Models;
+namespace TextGenerator.Config;
 
 internal abstract class AIModelConfig
 {

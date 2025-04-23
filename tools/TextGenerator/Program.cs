@@ -5,10 +5,10 @@ using CommonDotNet.Http;
 using CommonDotNet.Models;
 using CommonDotNet.OpenApi;
 using CommonDotNet.ServiceDiscovery;
-using TextGeneratorSk.Functions;
-using TextGeneratorSk.Models;
+using TextGenerator.Config;
+using TextGenerator.Functions;
 
-namespace TextGeneratorSk;
+namespace TextGenerator;
 
 internal static class Program
 {
@@ -37,7 +37,7 @@ internal static class Program
 
         // Endpoints / Functions
         const string GenerateTextFunctionName = "generate-text";
-        const string GenerateChatReplyFunctionName = "generate-reply";
+        // const string GenerateChatReplyFunctionName = "generate-reply";
         const string ListModelsFunctionName = "list-models";
 
         registry?.RegisterPostFunction($"/{GenerateTextFunctionName}", "Generate text for a given prompt");
@@ -51,16 +51,16 @@ internal static class Program
             .WithDescription("Generate text for a given prompt")
             .WithSummary("Generate text for a given prompt");
 
-        registry?.RegisterPostFunction($"/{GenerateChatReplyFunctionName}", "Generate reply for a given chat");
-        app.MapPost($"/{GenerateChatReplyFunctionName}", async Task<IResult> (
-                GenerateChatReplyFunction function,
-                GenerateChatReplyRequest req,
-                CancellationToken cancellationToken) => await function.InvokeAsync(req, cancellationToken).ConfigureAwait(false))
-            .Produces<GenerateChatReplyResponse>(StatusCodes.Status200OK)
-            .WithName(GenerateChatReplyFunctionName)
-            .WithDisplayName("Generate chat reply")
-            .WithDescription("Generate reply for a given chat history")
-            .WithSummary("Generate reply for a given chat history");
+        // registry?.RegisterPostFunction($"/{GenerateChatReplyFunctionName}", "Generate reply for a given chat");
+        // app.MapPost($"/{GenerateChatReplyFunctionName}", async Task<IResult> (
+        //         GenerateChatReplyFunction function,
+        //         GenerateChatReplyRequest req,
+        //         CancellationToken cancellationToken) => await function.InvokeAsync(req, cancellationToken).ConfigureAwait(false))
+        //     .Produces<GenerateChatReplyResponse>(StatusCodes.Status200OK)
+        //     .WithName(GenerateChatReplyFunctionName)
+        //     .WithDisplayName("Generate chat reply")
+        //     .WithDescription("Generate reply for a given chat history")
+        //     .WithSummary("Generate reply for a given chat history");
 
         registry?.RegisterPostFunction($"/{ListModelsFunctionName}", "List the models available to generate text adn replies");
         app.MapPost($"/{ListModelsFunctionName}", IResult () =>

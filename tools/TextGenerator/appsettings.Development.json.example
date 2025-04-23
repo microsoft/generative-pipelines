@@ -1,0 +1,42 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "App": {
+    "OpenAI": {
+      "ApiKey": "sk-proj-....",
+    },
+    "AzureAI": {
+      "Auth": "AzureCliCredential",
+      "Deployments": {
+        "azure-gpt-4.1": {
+          "Endpoint": "https://......cognitiveservices.azure.com/",
+          "Deployment": "gpt-4.1",
+          "ContextWindow": 1047576,
+          "MaxOutputTokens": 32768,
+        },
+        "azure-gpt-4.1-mini": {
+          "Endpoint": "https://......cognitiveservices.azure.com/",
+          "Deployment": "gpt-4.1-mini",
+          "ContextWindow": 1047576,
+          "MaxOutputTokens": 32768,
+        },
+        "azure-gpt-4o": {
+          "Endpoint": "https://......cognitiveservices.azure.com/",
+          "Deployment": "gpt-4o",
+          "ContextWindow": 128000,
+          "MaxOutputTokens": 16384,
+        },
+        "azure-gpt-4.5-preview": {
+          "Endpoint": "https://......cognitiveservices.azure.com/",
+          "Deployment": "gpt-4.5-preview",
+          "ContextWindow": 128000,
+          "MaxOutputTokens": 16384,
+        },
+      }
+    }
+  }
+}

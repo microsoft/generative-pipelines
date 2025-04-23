@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace TextGeneratorSk.Functions;
+namespace TextGenerator.Functions;
 
 internal sealed class GenerateChatReplyResponse
 {

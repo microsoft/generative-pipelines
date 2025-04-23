@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace TextGeneratorSk.Models;
+namespace TextGenerator.Config;
 
 internal sealed class OpenAIModelConfig : AIModelConfig, IValidatableObject
 {

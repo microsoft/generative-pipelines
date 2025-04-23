@@ -1,21 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+using TextGenerator.Models;
 
-namespace TextGeneratorSk.Models;
+namespace TextGenerator.Config;
 
 internal sealed class AzureAIModelProviderConfig : IValidatableObject
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum AzureAuthTypes
-    {
-        AzureIdentity,
-        APIKey
-    }
-
     public string Endpoint { get; set; } = string.Empty; // Optional override
-    public AzureAuthTypes Auth { get; set; } = AzureAuthTypes.AzureIdentity; // Optional override
+    public AuthTypes Auth { get; set; } = AuthTypes.DefaultAzureCredential; // Optional override
     public string ApiKey { get; set; } = string.Empty; // Optional override
     public Dictionary<string, AzureAIDeploymentConfig> Deployments { get; set; } = new();
 
@@ -41,7 +34,7 @@ internal sealed class AzureAIModelProviderConfig : IValidatableObject
                 }
             }
 
-            if (deployment.Auth.Value == AzureAuthTypes.APIKey && string.IsNullOrWhiteSpace(deployment.ApiKey))
+            if (deployment.Auth.Value == AuthTypes.ApiKey && string.IsNullOrWhiteSpace(deployment.ApiKey))
             {
                 deployment.ApiKey = this.ApiKey;
                 if (string.IsNullOrWhiteSpace(deployment.ApiKey))

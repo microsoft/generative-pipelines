@@ -58,4 +58,4 @@ ENV ASPNETCORE_HTTP_PORTS=5217
 EXPOSE 5217
 
 # Define executable
-ENTRYPOINT ["dotnet", "TextGeneratorSk.dll"]
+ENTRYPOINT ["dotnet", "TextGenerator.dll"]

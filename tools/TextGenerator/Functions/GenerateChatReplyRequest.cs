@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace TextGeneratorSk.Functions;
+namespace TextGenerator.Functions;
 
 internal sealed class GenerateChatReplyRequest : IValidatableObject
 {

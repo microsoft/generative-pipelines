@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>TextGeneratorSk</RootNamespace>
+        <RootNamespace>TextGenerator</RootNamespace>
         <NoWarn>CA2201;SKEXP0001;SKEXP0070;</NoWarn>
     </PropertyGroup>
 
