@@ -36,7 +36,7 @@ internal static class Program
         if (registry == null) { app.Logger.LogWarning("Tool registry not available, skipping functions registration"); }
 
         // Endpoints / Functions
-        const string GenerateTextFunctionName = "generate-text";
+        const string GenerateTextFunctionName = "generate";
         // const string GenerateChatReplyFunctionName = "generate-reply";
         const string ListModelsFunctionName = "list-models";
 

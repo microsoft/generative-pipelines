@@ -36,7 +36,7 @@ internal sealed class SimpleWorkspace
         this._log = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<SimpleWorkspace>();
         this._fileSystem = fileSystem;
         this._dir = config.WorkspaceDir;
-        this._log.LogDebug("Jobs workspace dir: {WorkspaceDir}", this._dir);
+        this._log.LogDebug("Jobs workspace dir: {WorkspaceDir} (Type: {FileSystemType})", this._dir, this._fileSystem.GetType().FullName);
     }
 
     public async Task CreateWorkspaceAsync(

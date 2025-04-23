@@ -1,0 +1,25 @@
+meta {
+  name: Prompt
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:60000/api/jobs
+  body: text
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/x-yaml
+}
+
+body:text {
+  modelId: gpt-4.1-nano
+  prompt: what's Morocco's capital?
+  
+  _workflow:
+    steps:
+      - function: text-generator/generate
+  
+}
