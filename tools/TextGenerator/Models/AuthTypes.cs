@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace TextGenerator.Models;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum AuthTypes
+internal enum AuthTypes
 {
     Unknown = -1,
 

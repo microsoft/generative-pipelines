@@ -5,6 +5,13 @@ using System.Text.Json.Serialization;
 
 namespace TextGenerator.Functions;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
+internal enum PromptTypes
+{
+    PlainText = 1,
+    Handlebars = 2,
+}
+
 internal sealed class GenerateTextRequest : IValidatableObject
 {
     [JsonPropertyName("modelId")]
@@ -20,6 +27,15 @@ internal sealed class GenerateTextRequest : IValidatableObject
     [JsonPropertyOrder(20)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SystemPrompt { get; set; }
+
+    [JsonPropertyName("promptType")]
+    public PromptTypes PromptType { get; set; } = PromptTypes.PlainText;
+
+    [JsonPropertyName("systemPromptType")]
+    public PromptTypes SystemPromptType { get; set; } = PromptTypes.PlainText;
+
+    [JsonPropertyName("promptTemplateData")]
+    public object? PromptTemplateData { get; set; }
 
     /// <summary>
     /// The maximum number of tokens to generate in the completion.
