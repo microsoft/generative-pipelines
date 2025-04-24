@@ -146,15 +146,21 @@ internal static class Program
         return orchestrator;
     }
 
-    private static IResourceBuilder<OllamaResource> AddOllama()
+    private static IResourceBuilder<OllamaResource>? AddOllama()
     {
-        IResourceBuilder<OllamaResource> ollama = s_builder.AddOllama("ollama")
-            .WithImage(image: s_config.OllamaContainerImage, tag: s_config.OllamaContainerTag)
-            .WithDataVolume();
+        // On localhost
+        if (s_builder.ExecutionContext.IsRunMode)
+        {
+            IResourceBuilder<OllamaResource> ollama = s_builder.AddOllama("ollama")
+                .WithImage(image: s_config.OllamaContainerImage, tag: s_config.OllamaContainerTag)
+                .WithDataVolume();
 
-        ollama.AddModel("phi4mini", modelName: "phi4-mini");
+            ollama.AddModel("phi4mini", modelName: "phi4-mini");
 
-        return ollama;
+            return ollama;
+        }
+
+        return null;
     }
 
     private static (IResourceBuilder<AzureBlobStorageResource> blobs, IResourceBuilder<AzureQueueStorageResource> queues) AddAzureStorage()
