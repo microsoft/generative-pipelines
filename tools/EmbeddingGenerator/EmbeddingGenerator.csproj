@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
+        <RootNamespace>EmbeddingGenerator</RootNamespace>
         <TargetFramework>net9.0</TargetFramework>
+        <RollForward>LatestMajor</RollForward>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
         <NoWarn>CA2201;</NoWarn>
-        <RootNamespace>EmbeddingGenerator</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
