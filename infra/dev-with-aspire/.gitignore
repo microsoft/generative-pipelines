@@ -1,2 +1,4 @@
 .azure
 next-steps.md
+infra/
+azure.yaml

@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
+        <RootNamespace>VectorStorageSk</RootNamespace>
         <TargetFramework>net9.0</TargetFramework>
         <RollForward>LatestMajor</RollForward>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
         <NoWarn>KMEXP00;SKEXP0020;</NoWarn>
-        <RootNamespace>VectorStorageSk</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
