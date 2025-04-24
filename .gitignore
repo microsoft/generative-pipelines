@@ -42,3 +42,4 @@ _dev/
 # Misc
 .DS_Store
 .idea
+*.log

@@ -14,22 +14,24 @@ internal static class DashboardView
     private const string Ollama = "ollama";
     private const string OllamaUi = Ollama + "-openwebui";
 
-    public static void Configure(this IDistributedApplicationBuilder appBuilder, List<string> toolNames)
+    public static IDistributedApplicationBuilder ConfigureDashboardView(this IDistributedApplicationBuilder builder, List<string> toolNames)
     {
         var builders = new Dictionary<string, IResourceBuilder<IResource>>();
         var resources = new Dictionary<string, IResource>();
 
-        foreach (var resource in appBuilder.Resources)
+        foreach (var resource in builder.Resources)
         {
             resources[resource.Name] = resource;
-            builders[resource.Name] = appBuilder.CreateResourceBuilder(resource);
+            builders[resource.Name] = builder.CreateResourceBuilder(resource);
         }
 
-        ConfigureOrchestrator(resources, builders, appBuilder, toolNames);
+        ConfigureOrchestrator(resources, builders, builder, toolNames);
         ConfigureQdrant(resources, builders);
         ConfigurePostgres(resources, builders);
         ConfigureRedis(resources, builders);
         ConfigureOllama(resources, builders);
+
+        return builder;
     }
 
     /// <summary>

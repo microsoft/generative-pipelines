@@ -21,6 +21,14 @@ start:
         bash ../../.dev/start.sh; \
     fi
 
+# Initialize Azure environment setting
+init:
+    azd init
+
+# First Azure provisioning
+provision:
+    azd provision
+
 # Build all and deploy to Azure (requires first time provisioning)
 deploy: build _deploy
 

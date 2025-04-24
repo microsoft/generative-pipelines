@@ -24,7 +24,7 @@ internal static class Program
     // Directory containing the tools to be available via the orchestrator.
     private static readonly string s_toolsPath = Path.Join("..", "..", "tools");
 
-    // Use path rather than a reference, to decouple nuget dependencies management
+    // Use a path rather than a reference to decouple nuget dependencies management
     private static readonly string s_orchestratorProjectFile = Path.Join("..", "service", "Orchestrator", "Orchestrator.csproj");
 
     // HOME dir, used for docker volumes (used also by docker compose files)
@@ -67,7 +67,7 @@ internal static class Program
 
         List<IResourceBuilder<IResourceWithConnectionString>?> references = [redis, azSearch, postgres, qdrant, azureStorage.blobs, azureStorage.queues, ollama];
 
-        // Tools
+        // Add Tools
         var toolNames = new List<string>();
         Echo("=================================");
         AddCSharpTools(orchestrator, references).AddToList(toolNames);
@@ -76,9 +76,10 @@ internal static class Program
         AddPythonTools(orchestrator, references).AddToList(toolNames);
         Echo("=================================");
 
-        s_builder.Configure(toolNames);
+        // Dashboard UI logic
+        s_builder.ConfigureDashboardView(toolNames).ShowDashboardUrl(true);
 
-        s_builder.ShowDashboardUrl(true).Build().Run();
+        s_builder.Build().Run();
     }
 
     private static void CreateDockerDataBindMountDirectory()
@@ -87,7 +88,7 @@ internal static class Program
 
         Echo($"Docker data bind mount: {s_localDockerData}");
 
-        // Note: the directory must be created by docker to have the correct permissions otherwise
+        // Note: the directory must be created by docker to have the correct permissions, otherwise
         // the container instance will report errors and run in a failed mode, breaking other resources.
         if (!Directory.Exists(s_localDockerData))
         {
@@ -129,7 +130,7 @@ internal static class Program
             // var key1 = s_builder.AddParameter("accesskey1", secret: true, value: s_builder.Configuration["Parameters:accesskey1"]);
             // var key2 = s_builder.AddParameter("accesskey2", secret: true, value: s_builder.Configuration["Parameters:accesskey2"]);
 
-            // Note: values are retrieved from the the local key vault, under ~/.azd/vaults - see https://github.com/dotnet/aspire/issues/8824
+            // Note: values are retrieved from the local key vault, under ~/.azd/vaults - see https://github.com/dotnet/aspire/issues/8824
             var key1 = s_builder.AddParameter("accesskey1", secret: true);
             var key2 = s_builder.AddParameter("accesskey2", secret: true);
 
@@ -211,10 +212,10 @@ internal static class Program
 
     private static IResourceBuilder<IResourceWithConnectionString>? AddAzureAiSearch()
     {
-        // When running locally inject the connection string from appsettings
+        // When running locally, inject the connection string from appsettings
         if (s_builder.ExecutionContext.IsRunMode)
         {
-            // Check if the connections string is set
+            // Check if the connection string is set
             if (string.IsNullOrEmpty(s_builder.Configuration.GetConnectionString(AzureAiSearchConnStringName)))
             {
                 Console.Error.WriteLine($"Error: Azure AI Search connection string not set in appsettings.json, skipping the resource.");
@@ -263,11 +264,13 @@ internal static class Program
         IResourceBuilder<QdrantServerResource>? qdrant = null;
 
         // On Azure
-        if (s_builder.ExecutionContext.IsPublishMode)
-        {
-            qdrant = s_builder.AddQdrant(QdrantConnStringName)
-                .WithDataBindMount(Path.Join(s_localDockerData, ResourceName));
-        }
+        // Disabled: the attached volume is not secure: the storage allows API keys authentication
+        // Options: consider using Qdrant Cloud or Azure Qdrant
+        // if (s_builder.ExecutionContext.IsPublishMode)
+        // {
+        //     qdrant = s_builder.AddQdrant(QdrantConnStringName)
+        //         .WithDataVolume();
+        // }
 
         // On localhost
         if (s_builder.ExecutionContext.IsRunMode)
